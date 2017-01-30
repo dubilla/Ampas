@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170129034734) do
+ActiveRecord::Schema.define(version: 20170130035728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,9 +44,12 @@ ActiveRecord::Schema.define(version: 20170129034734) do
   create_table "picks", force: :cascade do |t|
     t.integer  "entry_id"
     t.integer  "nominee_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "category_id"
   end
+
+  add_index "picks", ["category_id"], name: "index_picks_on_category_id", using: :btree
 
   create_table "pools", force: :cascade do |t|
     t.integer  "award_ceremony_id"
