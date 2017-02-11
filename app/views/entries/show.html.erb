@@ -1,0 +1,23 @@
+<div>
+  <h2>Entry</h2>
+  <h3><%= @entry.award_ceremony_name %></h3>
+  <h3><%= @entry.email %></h3>
+
+  <ul class="entry">
+    <% @entry.award_ceremony.categories.each do |category| %>
+      <li class="category">
+        <div><%= category.name %></div>
+        <ul>
+          <% category.nominees.each do |nominee| %>
+            <li>
+              <%= nominee.name %>
+              <% if @entry.picks.map(&:nominee).map(&:id).include? nominee.id  %>
+                <span> Picked!</span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
+  </ul>
+</div>
