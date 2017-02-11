@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170130035728) do
+ActiveRecord::Schema.define(version: 20170211202645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,8 @@ ActiveRecord::Schema.define(version: 20170130035728) do
     t.datetime "updated_at",        null: false
   end
 
+  add_index "categories", ["award_ceremony_id"], name: "index_categories_on_award_ceremony_id", using: :btree
+
   create_table "entries", force: :cascade do |t|
     t.integer  "pool_id"
     t.integer  "user_id"
@@ -36,10 +38,15 @@ ActiveRecord::Schema.define(version: 20170130035728) do
     t.datetime "updated_at", null: false
   end
 
+  add_index "entries", ["pool_id"], name: "index_entries_on_pool_id", using: :btree
+  add_index "entries", ["user_id"], name: "index_entries_on_user_id", using: :btree
+
   create_table "nominees", force: :cascade do |t|
     t.text    "name"
     t.integer "category_id"
   end
+
+  add_index "nominees", ["category_id"], name: "index_nominees_on_category_id", using: :btree
 
   create_table "picks", force: :cascade do |t|
     t.integer  "entry_id"
@@ -50,12 +57,16 @@ ActiveRecord::Schema.define(version: 20170130035728) do
   end
 
   add_index "picks", ["category_id"], name: "index_picks_on_category_id", using: :btree
+  add_index "picks", ["entry_id"], name: "index_picks_on_entry_id", using: :btree
+  add_index "picks", ["nominee_id"], name: "index_picks_on_nominee_id", using: :btree
 
   create_table "pools", force: :cascade do |t|
     t.integer  "award_ceremony_id"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
   end
+
+  add_index "pools", ["award_ceremony_id"], name: "index_pools_on_award_ceremony_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at",                          null: false
