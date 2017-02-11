@@ -48,5 +48,7 @@ group :development do
 
   gem 'pry'
   gem 'pry-byebug'
+
+  gem 'rails_best_practices'
 end
 
