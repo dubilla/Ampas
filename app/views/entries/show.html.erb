@@ -8,7 +8,11 @@
     <% @entry.award_ceremony.categories.each do |category| %>
       <li class="category">
         <div><%= category.name %></div>
-        <%= @entry.picks.detect(category_id: category.id).first.nominee.name %>
+        <% if pick = @entry.picks.detect{|p| p.category_id == category.id } %>
+          <%= pick.nominee.name %>
+        <% else %>
+          -
+        <% end %>
       </li>
     <% end %>
   </ul>
