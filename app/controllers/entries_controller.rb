@@ -13,7 +13,6 @@ class EntriesController < ApplicationController
 
   def update
     @entry = Entry.find(params[:id])
-    binding.pry
     if @entry.update_attributes(entry_params)
       redirect_to @entry
     else
