@@ -7,16 +7,7 @@
     <% @entry.award_ceremony.categories.each do |category| %>
       <li class="category">
         <div><%= category.name %></div>
-        <ul>
-          <% category.nominees.each do |nominee| %>
-            <li>
-              <%= nominee.name %>
-              <% if @entry.picks.map(&:nominee).map(&:id).include? nominee.id  %>
-                <span> Picked!</span>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
+        <%= @entry.picks.detect(category_id: category.id).first.nominee.name %>
       </li>
     <% end %>
   </ul>
