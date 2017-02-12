@@ -1,0 +1,26 @@
+<div>
+  <h2>Entry</h2>
+  <h3><%= @entry.award_ceremony_name %></h3>
+  <h3><%= @entry.email %></h3>
+
+  <%= form_for(@entry) do |f| %>
+    <ul class="entry">
+      <% @entry.award_ceremony.categories.each do |category| %>
+        <li class="category">
+          <div><%= category.name %></div>
+          <%= f.fields_for :picks do |pf| %>
+            <ul>
+              <% category.nominees.each do |nominee| %>
+                <li>
+                  <%= pf.radio_button("nominee_id", nominee.id, { checked: @entry.picks.detect(category_id: category.id).first.nominee_id == nominee.id }) %>
+                  <%= label_tag(:nominee, nominee.name) %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+    <%= submit_tag("Submit") %>
+  <% end %>
+</div>
