@@ -5,13 +5,11 @@
 
   <%= link_to "Edit Entry", edit_entry_path(@entry) %>
   <ul class="entry">
-    <% @entry.award_ceremony.categories.each do |category| %>
+    <% @entry.picks.each do |p| %>
       <li class="category">
-        <div><%= category.name %></div>
-        <% if pick = @entry.picks.detect{|p| p.category_id == category.id } %>
-          <%= pick.nominee.name %>
-        <% else %>
-          -
+        <div><%= p.category.name %></div>
+        <% if p.nominee %>
+          <div><%= p.nominee.name %></div>
         <% end %>
       </li>
     <% end %>
