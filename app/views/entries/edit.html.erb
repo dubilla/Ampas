@@ -4,21 +4,25 @@
   <h3><%= @entry.email %></h3>
 
   <%= form_for(@entry) do |f| %>
-    <ul class="entry">
-      <%= f.fields_for :picks do |pf| %>
-        <li class="category">
-          <div><%= pf.object.category.name %></div>
-            <ul>
-              <% pf.object.category.nominees.each do |n| %>
-                <li class="nominee">
-                  <%= pf.radio_button("nominee_id", n.id, { checked: pf.object.nominee_id == n.id }) %>
-                  <%= label_tag(:nominee, n.name) %>
-                </li>
-              <% end %>
-            </ul>
-        </li>
-      <% end %>
-    </ul>
+    <fieldset>
+      <ul class="entry">
+        <%= f.fields_for :picks do |pf| %>
+          <li class="category">
+            <div><%= pf.object.category.name %></div>
+              <ul>
+                <% pf.object.category.nominees.each do |n| %>
+                  <li class="nominee">
+                    <%= label_tag "nominee-#{n.id}", n.name do %>
+                      <%= pf.radio_button "nominee_id", n.id, { checked: pf.object.nominee_id == n.id, id: "nominee-#{n.id}" } %>
+                      <%= n.name %>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+          </li>
+        <% end %>
+      </ul>
+    </fieldset>
     <%= submit_tag("Submit") %>
   <% end %>
 </div>
