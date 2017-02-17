@@ -7,11 +7,12 @@ class EntriesController < ApplicationController
   end
 
   def edit
-    @entry = Entry.joins(pool: :award_ceremony, picks: :category).find(params[:id])
+    authorize entry
+    entry
   end
 
   def show
-    @entry = Entry.joins(pool: :award_ceremony, picks: :category).find(params[:id])
+    entry
   end
 
   def update
@@ -24,6 +25,10 @@ class EntriesController < ApplicationController
   end
 
   private
+
+  def entry
+    @entry ||= Entry.joins(pool: :award_ceremony, picks: :category).find(params[:id])
+  end
 
   def entry_params
     params
