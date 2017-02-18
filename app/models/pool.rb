@@ -3,4 +3,5 @@ class Pool < ActiveRecord::Base
   has_many :entries
 
   delegate :name, to: :award_ceremony, prefix: true
+  delegate :locks_at, to: :award_ceremony
 end

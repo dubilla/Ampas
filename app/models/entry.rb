@@ -7,8 +7,13 @@ class Entry < ActiveRecord::Base
   delegate :award_ceremony, to: :pool
   delegate :email, to: :user
   delegate :award_ceremony_name, to: :pool
+  delegate :locks_at, to: :pool
 
   def name
     email
+  end
+
+  def locked?
+    Time.current >= locks_at
   end
 end
