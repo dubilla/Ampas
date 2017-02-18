@@ -1,0 +1,27 @@
+<div>
+  <h2>Entry</h2>
+  <h3><%= @entry.award_ceremony_name %></h3>
+  <h3><%= @entry.email %></h3>
+  <%= form_for(@entry, url: pool_entries_path) do |f| %>
+    <fieldset>
+      <ul class="entry">
+        <%= f.fields_for :picks do |pf| %>
+          <li class="category">
+            <div><%= pf.object.category.name %></div>
+              <ul>
+                <% pf.object.category.nominees.each do |n| %>
+                  <li class="nominee">
+                    <%= label_tag "nominee-#{n.id}", n.name do %>
+                      <%= pf.radio_button "nominee_id", n.id, { checked: pf.object.nominee_id == n.id, id: "nominee-#{n.id}" } %>
+                      <%= n.name %>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+          </li>
+        <% end %>
+      </ul>
+    </fieldset>
+    <%= submit_tag("Submit") %>
+  <% end %>
+</div>
