@@ -1,6 +1,8 @@
 <div>
   <h3>Pool</h3>
-  <%= link_to 'Join Pool', new_pool_entry_path(pool_id: @pool.id) %>
+  <% if !@pool.entries.map(&:user).include? current_user %>
+    <%= link_to 'Join Pool', new_pool_entry_path(pool_id: @pool.id) %>
+  <% end %>
   <table class="minimal-table">
     <thead>
       <th>Entries</th>
