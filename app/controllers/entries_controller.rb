@@ -27,7 +27,7 @@ class EntriesController < ApplicationController
   private
 
   def entry
-    @entry ||= Entry.joins(pool: :award_ceremony).includes(picks: :category).find(params[:id])
+    @entry ||= Entry.joins(pool: { award_ceremony: :categories }).includes(:picks).find(params[:id])
   end
 
   def entry_params
