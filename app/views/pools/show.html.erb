@@ -11,7 +11,11 @@
     <% @pool.entries.each do |e| %>
       <tr>
         <td><%= e.name %></td>
-        <td><%= link_to 'View Entry', entry_path(id: e.id) %></td>
+        <td>
+          <% if policy(e).show? %>
+            <%= link_to 'View Entry', entry_path(id: e.id) %>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </table>

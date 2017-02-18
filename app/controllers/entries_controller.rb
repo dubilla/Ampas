@@ -17,6 +17,7 @@ class EntriesController < ApplicationController
   end
 
   def show
+    authorize entry
     entry
   end
 
