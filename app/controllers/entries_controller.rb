@@ -29,6 +29,17 @@ class EntriesController < ApplicationController
     end
   end
 
+  def create
+    @entry = Entry.new(entry_params)
+    @entry.pool = pool
+    @entry.user = current_user
+    if @entry.save
+      redirect_to @entry
+    else
+      render 'edit'
+    end
+  end
+
   private
 
   def entry

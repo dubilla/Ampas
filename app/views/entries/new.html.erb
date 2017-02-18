@@ -5,8 +5,9 @@
   <%= form_for(@entry, url: pool_entries_path) do |f| %>
     <fieldset>
       <ul class="entry">
-        <%= f.fields_for :picks do |pf| %>
+        <%= f.fields_for :picks, hidden_field_id: true do |pf| %>
           <li class="category">
+            <%= pf.hidden_field :category_id, value: pf.object.category_id %>
             <div><%= pf.object.category.name %></div>
               <ul>
                 <% pf.object.category.nominees.each do |n| %>
