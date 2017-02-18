@@ -1,0 +1,18 @@
+<div>
+  <h3>Pools</h3>
+  <table class="minimal-table">
+    <thead>
+      <th>Pools</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <% @pools.each do |p| %>
+        <tr>
+          <td><%= p.award_ceremony_name %></td>
+          <td>
+            <%= link_to 'View Pool', pool_path(id: p.id) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+</div>

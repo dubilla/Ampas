@@ -17,7 +17,7 @@ Rails.application.routes.draw do
 
   resources :award_ceremonies, only: :index
   resources :entries, only: [:show, :edit, :update]
-  resources :pools, only: :show do
+  resources :pools, only: [:show, :index] do
     resources :entries, only: [:new, :create]
   end
 
