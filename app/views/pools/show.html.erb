@@ -1,0 +1,15 @@
+<div>
+  <h3>Pool</h3>
+  <table class="minimal-table">
+    <thead>
+      <th>Entries</th>
+      <th></th>
+    </thead>
+    <% @pool.entries.each do |e| %>
+      <tr>
+        <td><%= e.name %></td>
+        <td><%= link_to 'View Entry', entry_path(id: e.id) %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>

@@ -7,4 +7,8 @@ class Entry < ActiveRecord::Base
   delegate :award_ceremony, to: :pool
   delegate :email, to: :user
   delegate :award_ceremony_name, to: :pool
+
+  def name
+    email
+  end
 end

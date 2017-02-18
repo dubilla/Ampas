@@ -17,6 +17,7 @@ Rails.application.routes.draw do
 
   resources :award_ceremonies, only: :index
   resources :entries, only: [:new, :show, :edit, :update]
+  resources :pools, only: :show
 
   # Example resource route with options:
   #   resources :products do
