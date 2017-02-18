@@ -1,7 +1,7 @@
 class Entry < ActiveRecord::Base
   belongs_to :pool
   belongs_to :user
-  has_many :picks, -> { order(:created_at) }
+  has_many :picks, -> { order(:created_at) }, dependent: :destroy
   accepts_nested_attributes_for :picks
 
   delegate :award_ceremony, to: :pool
