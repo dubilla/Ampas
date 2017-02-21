@@ -40,4 +40,10 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+  # This block is called only when running console
+  console do
+    require "pry"
+    config.console = Pry
+  end
 end

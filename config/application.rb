@@ -25,11 +25,5 @@ module Ampas
 
     # Dump schema to sql file
     config.active_record.schema_format = :sql
-
-    # This block is called only when running console
-    console do
-      require "pry"
-      config.console = Pry
-    end
   end
 end
