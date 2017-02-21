@@ -37,7 +37,7 @@ class EntriesController < ApplicationController
     if @entry.save
       redirect_to @entry
     else
-      render 'edit'
+      render 'new'
     end
   end
 

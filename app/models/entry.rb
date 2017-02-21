@@ -3,6 +3,7 @@ class Entry < ActiveRecord::Base
   belongs_to :user
   has_many :picks, -> { order(:created_at) }, dependent: :destroy
   accepts_nested_attributes_for :picks
+  validates_associated :picks
 
   delegate :award_ceremony, to: :pool
   delegate :email, to: :user
