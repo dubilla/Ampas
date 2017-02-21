@@ -6,14 +6,24 @@
   <% if policy(@entry).edit?  %>
     <%= link_to "Edit Entry", edit_entry_path(@entry) %>
   <% end %>
-  <ul class="entry">
-    <% @entry.picks.each do |p| %>
-      <li class="category">
-        <div><%= p.category.name %></div>
-        <% if p.nominee %>
-          <div><%= p.nominee.name %></div>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
+  <table class="minimal-table entry">
+    <thead>
+      <th>Category</th>
+      <th>Pick</th>
+    </thead>
+    <tbody>
+      <% @entry.picks.each do |p| %>
+        <tr class="category">
+          <td>
+            <%= p.category.name %>
+          </td>
+          <td>
+            <% if p.nominee.present? %>
+              <%= p.nominee.name %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
