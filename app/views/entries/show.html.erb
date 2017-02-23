@@ -1,10 +1,12 @@
 <div>
   <h2>Entry</h2>
-  <h3><%= @entry.award_ceremony_name %></h3>
-  <h3><%= @entry.email %></h3>
+  <h5><%= link_to @entry.award_ceremony_name, pool_path(@entry.pool) %></h5>
+  <h5><%= @entry.email %></h5>
 
   <% if policy(@entry).edit?  %>
-    <%= link_to "Edit Entry", edit_entry_path(@entry) %>
+    <div>
+      <%= link_to "Edit Entry", edit_entry_path(@entry) %>
+    </div>
   <% end %>
   <table class="minimal-table entry">
     <thead>
