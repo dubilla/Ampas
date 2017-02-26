@@ -1,7 +1,10 @@
 <div>
   <h2>Entry</h2>
   <h5><%= link_to @entry.award_ceremony_name, pool_path(@entry.pool) %></h5>
-  <h5><%= @entry.email %></h5>
+  <h5 class="entry-name-header"><%= @entry.email %></h5>
+  <% if @entry.locked? %>
+    <h5 class="entry-score-header">Score: <%= @entry.score %></h6>
+  <% end %>
 
   <% if policy(@entry).edit?  %>
     <div>
@@ -38,4 +41,7 @@
       <% end %>
     </tbody>
   </table>
+  <% if @entry.locked? %>
+    <h5 class="entry-score-footer">Score: <%= @entry.score %></h5>
+  <% end %>
 </div>
