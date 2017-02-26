@@ -12,7 +12,7 @@
     <thead>
       <th>Category</th>
       <th>Pick</th>
-      <% if entry.locked? %>
+      <% if @entry.locked? %>
         <th>Winner</th>
       <% end %>
     </thead>
@@ -27,9 +27,9 @@
               <%= p.nominee.name %>
             <% end %>
           </td>
-          <% if entry.locked? %>
+          <% if @entry.locked? %>
             <% if p.category.winner.present? %>
-              <td><%= p.category.winner.name %></td>
+              <td class="<%= 'correct-winner' if p.nominee.winner? %>"><%= p.category.winner.name %></td>
             <% else %>
               <td>-</td>
             <% end %>
