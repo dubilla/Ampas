@@ -12,6 +12,9 @@
     <thead>
       <th>Category</th>
       <th>Pick</th>
+      <% if entry.locked? %>
+        <th>Winner</th>
+      <% end %>
     </thead>
     <tbody>
       <% @entry.picks.each do |p| %>
@@ -24,6 +27,13 @@
               <%= p.nominee.name %>
             <% end %>
           </td>
+          <% if entry.locked? %>
+            <% if p.category.winner.present? %>
+              <td><%= p.category.winner.name %></td>
+            <% else %>
+              <td>-</td>
+            <% end %>
+          <% end %>
         </tr>
       <% end %>
     </tbody>
