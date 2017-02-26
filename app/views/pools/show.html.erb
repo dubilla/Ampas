@@ -6,11 +6,15 @@
   <table class="minimal-table">
     <thead>
       <th>Entries</th>
+      <th>Scores</th>
       <th></th>
     </thead>
     <% @pool.entries.each do |e| %>
       <tr>
         <td><%= e.name %></td>
+        <td>
+          <%= e.score %></td>
+        </td>
         <td>
           <% if policy(e).show? %>
             <%= link_to 'View Entry', entry_path(id: e.id) %>

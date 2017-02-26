@@ -19,6 +19,6 @@ class Entry < ActiveRecord::Base
   end
 
   def score
-    picks.map(&:nominee).select(&:winner?)
+    picks.map(&:nominee).select(&:winner?).count
   end
 end
