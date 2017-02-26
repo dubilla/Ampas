@@ -132,7 +132,8 @@ ALTER SEQUENCE entries_id_seq OWNED BY entries.id;
 CREATE TABLE nominees (
     id integer NOT NULL,
     name text,
-    category_id integer
+    category_id integer,
+    winner boolean
 );
 
 
@@ -547,4 +548,6 @@ INSERT INTO schema_migrations (version) VALUES ('20170211202441');
 INSERT INTO schema_migrations (version) VALUES ('20170211202645');
 
 INSERT INTO schema_migrations (version) VALUES ('20170218051550');
+
+INSERT INTO schema_migrations (version) VALUES ('20170226010635');
 

@@ -17,4 +17,8 @@ class Entry < ActiveRecord::Base
   def locked?
     Time.current >= locks_at
   end
+
+  def score
+    picks.map(&:nominee).select(&:winner?)
+  end
 end
