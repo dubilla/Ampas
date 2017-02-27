@@ -9,7 +9,7 @@
       <th>Scores</th>
       <th></th>
     </thead>
-    <% @pool.entries.sort_by(&:score).each do |e| %>
+    <% @pool.entries.sort_by{|e| -e.score }.each do |e| %>
       <tr>
         <td><%= e.name %></td>
         <td>
