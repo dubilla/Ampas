@@ -2,12 +2,17 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 10.1
+-- Dumped by pg_dump version 10.1
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -30,7 +35,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: award_ceremonies; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: award_ceremonies; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE award_ceremonies (
@@ -47,6 +52,7 @@ CREATE TABLE award_ceremonies (
 --
 
 CREATE SEQUENCE award_ceremonies_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -62,7 +68,7 @@ ALTER SEQUENCE award_ceremonies_id_seq OWNED BY award_ceremonies.id;
 
 
 --
--- Name: categories; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: categories; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE categories (
@@ -79,6 +85,7 @@ CREATE TABLE categories (
 --
 
 CREATE SEQUENCE categories_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -94,7 +101,7 @@ ALTER SEQUENCE categories_id_seq OWNED BY categories.id;
 
 
 --
--- Name: entries; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: entries; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE entries (
@@ -111,6 +118,7 @@ CREATE TABLE entries (
 --
 
 CREATE SEQUENCE entries_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -126,7 +134,7 @@ ALTER SEQUENCE entries_id_seq OWNED BY entries.id;
 
 
 --
--- Name: nominees; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: nominees; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE nominees (
@@ -142,6 +150,7 @@ CREATE TABLE nominees (
 --
 
 CREATE SEQUENCE nominees_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -157,7 +166,7 @@ ALTER SEQUENCE nominees_id_seq OWNED BY nominees.id;
 
 
 --
--- Name: picks; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: picks; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE picks (
@@ -175,6 +184,7 @@ CREATE TABLE picks (
 --
 
 CREATE SEQUENCE picks_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -190,7 +200,7 @@ ALTER SEQUENCE picks_id_seq OWNED BY picks.id;
 
 
 --
--- Name: pools; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: pools; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE pools (
@@ -206,6 +216,7 @@ CREATE TABLE pools (
 --
 
 CREATE SEQUENCE pools_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -221,7 +232,7 @@ ALTER SEQUENCE pools_id_seq OWNED BY pools.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE schema_migrations (
@@ -230,7 +241,7 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -255,6 +266,7 @@ CREATE TABLE users (
 --
 
 CREATE SEQUENCE users_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -270,56 +282,56 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: award_ceremonies id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY award_ceremonies ALTER COLUMN id SET DEFAULT nextval('award_ceremonies_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY categories ALTER COLUMN id SET DEFAULT nextval('categories_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: entries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY entries ALTER COLUMN id SET DEFAULT nextval('entries_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: nominees id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY nominees ALTER COLUMN id SET DEFAULT nextval('nominees_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: picks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY picks ALTER COLUMN id SET DEFAULT nextval('picks_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: pools id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY pools ALTER COLUMN id SET DEFAULT nextval('pools_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: award_ceremonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: award_ceremonies award_ceremonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY award_ceremonies
@@ -327,7 +339,7 @@ ALTER TABLE ONLY award_ceremonies
 
 
 --
--- Name: categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY categories
@@ -335,7 +347,7 @@ ALTER TABLE ONLY categories
 
 
 --
--- Name: entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: entries entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY entries
@@ -343,7 +355,7 @@ ALTER TABLE ONLY entries
 
 
 --
--- Name: nominees_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: nominees nominees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY nominees
@@ -351,7 +363,7 @@ ALTER TABLE ONLY nominees
 
 
 --
--- Name: picks_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: picks picks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY picks
@@ -359,7 +371,7 @@ ALTER TABLE ONLY picks
 
 
 --
--- Name: pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: pools pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY pools
@@ -367,7 +379,7 @@ ALTER TABLE ONLY pools
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -375,84 +387,84 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: index_categories_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_categories_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_categories_on_award_ceremony_id ON categories USING btree (award_ceremony_id);
 
 
 --
--- Name: index_entries_on_pool_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_entries_on_pool_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_entries_on_pool_id ON entries USING btree (pool_id);
 
 
 --
--- Name: index_entries_on_user_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_entries_on_user_id ON entries USING btree (user_id);
 
 
 --
--- Name: index_nominees_on_category_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_nominees_on_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_nominees_on_category_id ON nominees USING btree (category_id);
 
 
 --
--- Name: index_picks_on_category_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_picks_on_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_picks_on_category_id ON picks USING btree (category_id);
 
 
 --
--- Name: index_picks_on_entry_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_picks_on_entry_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_picks_on_entry_id ON picks USING btree (entry_id);
 
 
 --
--- Name: index_picks_on_nominee_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_picks_on_nominee_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_picks_on_nominee_id ON picks USING btree (nominee_id);
 
 
 --
--- Name: index_pools_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_pools_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_pools_on_award_ceremony_id ON pools USING btree (award_ceremony_id);
 
 
 --
--- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 
 
 --
--- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (reset_password_token);
 
 
 --
--- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
 
 
 --
--- Name: fk_rails_3295d19bd4; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: nominees fk_rails_3295d19bd4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY nominees
@@ -460,7 +472,7 @@ ALTER TABLE ONLY nominees
 
 
 --
--- Name: fk_rails_42358aa0a9; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: picks fk_rails_42358aa0a9; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY picks
@@ -468,7 +480,7 @@ ALTER TABLE ONLY picks
 
 
 --
--- Name: fk_rails_53b715888d; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: categories fk_rails_53b715888d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY categories
@@ -476,7 +488,7 @@ ALTER TABLE ONLY categories
 
 
 --
--- Name: fk_rails_78f64222e2; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: picks fk_rails_78f64222e2; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY picks
@@ -484,7 +496,7 @@ ALTER TABLE ONLY picks
 
 
 --
--- Name: fk_rails_7dd1327a40; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: pools fk_rails_7dd1327a40; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY pools
@@ -492,7 +504,7 @@ ALTER TABLE ONLY pools
 
 
 --
--- Name: fk_rails_99dc12d4fd; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: entries fk_rails_99dc12d4fd; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY entries
@@ -500,7 +512,7 @@ ALTER TABLE ONLY entries
 
 
 --
--- Name: fk_rails_cd311de9ac; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: entries fk_rails_cd311de9ac; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY entries
@@ -511,7 +523,7 @@ ALTER TABLE ONLY entries
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO "$user",public;
+SET search_path TO "$user", public;
 
 INSERT INTO schema_migrations (version) VALUES ('20170128224320');
 
