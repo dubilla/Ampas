@@ -55,7 +55,7 @@ group :development do
   gem 'pry-byebug'
 
   gem 'rails_best_practices'
-  gem 'rubocop', '~> 0.47.1', require: false
+  gem 'rubocop', require: false
 
   gem 'refills'
 end
