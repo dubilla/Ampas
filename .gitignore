@@ -21,3 +21,6 @@
 
 # Dev server output
 /logs
+
+# Precompiled assets
+/public/assets

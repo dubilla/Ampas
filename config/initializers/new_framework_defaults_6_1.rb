@@ -1,6 +1,6 @@
-# Rails 5.2 framework defaults that are deliberately deferred.
+# Rails 6.1 framework defaults that are deliberately deferred.
 #
-# config.load_defaults 5.2 in config/application.rb turns on the full 5.0-5.2
+# config.load_defaults 6.1 in config/application.rb turns on the full 5.0-6.1
 # default set. The two below are switched back off on purpose; each is a
 # behavior change rather than a bug fix, and this upgrade is meant to preserve
 # behavior. Revisit them once the ladder reaches Rails 8.
