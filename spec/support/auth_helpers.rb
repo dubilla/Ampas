@@ -4,7 +4,7 @@
 # versions -- important for a suite meant to survive a framework upgrade.
 module AuthHelpers
   def sign_in_as(user, password: 'password')
-    post '/users/sign_in', user: { email: user.email, password: password }
+    post '/users/sign_in', params: { user: { email: user.email, password: password } }
   end
 
   def sign_out!

@@ -1,4 +1,4 @@
-class Pool < ActiveRecord::Base
+class Pool < ApplicationRecord
   belongs_to :award_ceremony
   has_many :entries
   has_many :categories, through: :award_ceremony

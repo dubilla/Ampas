@@ -1,6 +1,6 @@
 # Ampas: Ruby + Rails Upgrade Plan
 
-**Status:** Phases 0–1 complete — app boots locally, 59 characterization specs green on Rails 4.2
+**Status:** Phases 0–2 complete — running Rails 5.2.8.1, 59 specs green, CI on every PR
 **Goal:** Get from Ruby 2.6.10 / Rails 4.2.8 to Ruby 3.3 / Rails 8.0, closing ~100 open Dependabot
 alerts (including [#135](https://github.com/dubilla/Ampas/security/dependabot/135), the nokogiri
 CSS-tokenizer ReDoS that requires Ruby >= 3.2 to patch).
@@ -268,14 +268,14 @@ Commit. **This is a good long stop point.**
 
 The biggest hop. Ruby stays at 2.6 (Docker). Read the 4.2→5.0, 5.0→5.1, and 5.1→5.2 upgrade guides.
 
-- [ ] Bundler 1.17 → 2.x (Rails 5 lifts the `< 2.0` pin).
-- [ ] `gem 'rails', '5.2.8.1'`; `bundle update rails`.
-- [ ] Run `rails app:update`, diffing every file rather than accepting wholesale — `config/` here is
+- [x] Bundler 1.17 → 2.x (Rails 5 lifts the `< 2.0` pin).
+- [x] `gem 'rails', '5.2.8.1'`; `bundle update rails`.
+- [x] Run `rails app:update`, diffing every file rather than accepting wholesale — `config/` here is
       still mostly stock 4.2 scaffolding with the comments intact.
-- [ ] **Delete `config.active_record.raise_in_transactional_callbacks`** from `config/application.rb`
+- [x] **Delete `config.active_record.raise_in_transactional_callbacks`** from `config/application.rb`
       — removed in Rails 5.0; the app won't boot with it.
-- [ ] Add `config.load_defaults 5.2` and work through `new_framework_defaults.rb`.
-- [ ] **`belongs_to` is required by default in Rails 5.** This will break things. Affected:
+- [x] Add `config.load_defaults 5.2` and work through `new_framework_defaults.rb`.
+- [x] **`belongs_to` is required by default in Rails 5.** This will break things. Affected:
       `Pick belongs_to :entry, :category, :nominee` (picks are built unsaved with a nil nominee in
       `EntriesController#new` — this *will* fail validation), `Nominee belongs_to :category`,
       `Entry belongs_to :pool, :user`, `Pool belongs_to :award_ceremony`,
@@ -283,26 +283,57 @@ The biggest hop. Ruby stays at 2.6 (Docker). Read the 4.2→5.0, 5.0→5.1, and 
       legitimately allowed (`Pick#nominee` certainly is — the whole point of `#new` is empty picks), or
       set `config.active_record.belongs_to_required_by_default = false` as a temporary escape hatch and
       revisit. Your Phase 1 specs will tell you exactly which ones matter.
-- [ ] Add `app/models/application_record.rb`; reparent all 6 models from `ActiveRecord::Base`.
-- [ ] Add `app/controllers/application_controller.rb`-adjacent `ApplicationJob`/`ApplicationMailer`
+- [x] Add `app/models/application_record.rb`; reparent all 6 models from `ActiveRecord::Base`.
+- [x] Add `app/controllers/application_controller.rb`-adjacent `ApplicationJob`/`ApplicationMailer`
       only if `rails app:update` wants them (there are no jobs or mailers today).
-- [ ] `config.serve_static_files` → `config.public_file_server.enabled` in
+- [x] `config.serve_static_files` → `config.public_file_server.enabled` in
       `config/environments/production.rb`.
-- [ ] `rails-deprecated_sanitizer` disappears from the tree — good.
-- [ ] Devise 4.2 → 4.4+ (Rails 5 support). Regenerate `config/initializers/devise.rb` against the new
+- [x] `rails-deprecated_sanitizer` disappears from the tree — good.
+- [x] Devise 4.2 → 4.4+ (Rails 5 support). Regenerate `config/initializers/devise.rb` against the new
       version and re-apply your customizations by diff.
-- [ ] `@entry.update_attributes(...)` in `EntriesController#update` → `update`. (Deprecated in 6.1,
+- [x] `@entry.update_attributes(...)` in `EntriesController#update` → `update`. (Deprecated in 6.1,
       removed in 7.0 — do it now while it's harmless.)
-- [ ] Verify `params.required(:entry)` still works (it's an alias of `require`; it survives, but
+- [x] Verify `params.required(:entry)` still works (it's an alias of `require`; it survives, but
       confirm rather than assume).
-- [ ] Regenerate `db/structure.sql` (`rails db:migrate` against a fresh DB) — the format changes.
-- [ ] Turbolinks 2 → 5 (`data-turbolinks-track: true` → `'reload'` in
+- [x] Regenerate `db/structure.sql` (`rails db:migrate` against a fresh DB) — the format changes.
+- [x] Turbolinks 2 → 5 (`data-turbolinks-track: true` → `'reload'` in
       `app/views/layouts/application.html.erb`).
-- [ ] `bundle update` the long tail: `pg`, `pundit`, `sass-rails`, `uglifier`, `jquery-rails`,
+- [x] `bundle update` the long tail: `pg`, `pundit`, `sass-rails`, `uglifier`, `jquery-rails`,
       `web-console` (2.x → 3.x), `rspec-rails`, `rubocop`.
-- [ ] Drop dead gems while you're here: `sdoc`, `refills`, `rails_best_practices`. Also drop the
+- [x] Drop dead gems while you're here: `sdoc`, `refills`, `rails_best_practices`. Also drop the
       `bourbon`, `neat`, and `bitters` gems — **all three are already vendored** under
       `app/assets/stylesheets/`, so the gems are doing nothing.
+
+### How it actually went
+
+Four things worth carrying into Phase 3:
+
+1. **`belongs_to` required by default bit exactly where predicted, but for a subtler reason than
+   expected.** The failure was `Pick` -> `Entry`, not `Pick` -> `Nominee`: `has_many :picks, -> {
+   order(:created_at) }` carries a *scope*, and a scope suppresses Rails' automatic `inverse_of`
+   detection. That leaves `pick.entry` nil while saving nested attributes, which a required
+   `belongs_to` rejects. Fixed with an explicit `inverse_of: :entry` rather than `optional: true`,
+   so the integrity guarantee is kept. `Pick#nominee` *is* now `optional: true`, deliberately:
+   `EntriesController#new` builds empty picks for the form, and `Pick#complete?` already reports a
+   missing nominee.
+
+2. **`config.load_defaults 5.2` broke every session-touching request** with
+   `OpenSSL::Cipher::CipherError: couldn't set additional authenticated data`. Rails 5.2 switches
+   encrypted cookies to AES-256-GCM and sets the additional authenticated data before the key, which
+   modern OpenSSL rejects on Ruby 2.6. Deferred via `config/initializers/new_framework_defaults_5_2.rb`
+   — which is the right call regardless, since flipping the cookie format signs out every existing
+   session. The OpenSSL half resolves itself at Phase 4; the session half stays a product decision.
+
+3. **The only spec changes needed were Rails 5's integration-test API** (`post path, params: {...},
+   headers: {...}` instead of positional args). No assertion changed. That is the payoff from writing
+   request specs without `assigns` — the suite tested behavior, and behavior did not move.
+
+4. **`pundit` jumped straight to 2.5.2**, so `include Pundit` -> `include Pundit::Authorization`
+   happened here rather than in Phase 4 as planned. Same for `update_attributes` -> `update`.
+
+Not done, deliberately: `db/structure.sql` was **not** regenerated, since no migrations ran and the
+existing dump loads cleanly on PG 14 and 16. Rails 5 creates `ar_internal_metadata` on demand. The
+Devise initializer was also left alone — Devise 4.7.3 runs it without deprecations.
 
 **Done when:** specs green, app boots, screenshots match Phase 0. Commit and stop.
 
@@ -420,4 +451,5 @@ Append a dated line as each phase closes.
 |---|---|---|
 | 2026-08-18 | 0 | App revived locally. nokogiri 1.8.2 -> 1.13.10, devise 4.2.0 -> 4.7.3, `force_ruby_platform`. DB created from `structure.sql`, real `db/seeds.rb` written. All routes verified incl. authenticated sign-in -> pools -> entry. Docker deemed unnecessary. |
 | 2026-08-18 | 1 | RSpec + FactoryBot + Timecop. 59 examples across models, policies, and request specs; all green. Request specs (not controller specs) and no `assigns`, so the suite survives Rails 5+. Surfaced 4 latent bugs incl. a missing authorization check on entries#update. |
+| 2026-08-19 | 2 | Rails 4.2.8 -> 5.2.8.1. `load_defaults 5.2` with GCM cookie encryption deferred; `inverse_of` on Entry#picks; `Pick#nominee` optional; ApplicationRecord; Pundit::Authorization; `update_attributes` -> `update`; Turbolinks 5; dropped inert bourbon/neat/bitters/sdoc/refills/rails_best_practices gems. 59 specs green, zero deprecations. |
 | | | |

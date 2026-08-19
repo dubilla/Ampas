@@ -2,7 +2,7 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
-> **This app is mid-upgrade.** It currently runs Rails 4.2.8 on Ruby 2.6 and is being moved to
+> **This app is mid-upgrade.** It currently runs Rails 5.2.8.1 on Ruby 2.6 and is being moved to
 > Rails 8 / Ruby 3.3, one phase at a time. See [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md)
 > for the ladder, the known blockers, and the latent bugs found along the way.
 
@@ -37,7 +37,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Tech stack
 
-- Rails 4.2.8
+- Rails 5.2.8.1
 - PostgreSQL
 - Devise, Pundit
 - Sprockets, jQuery, Turbolinks
@@ -46,9 +46,9 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 2.6 (Rails 4.2 does not run on Ruby 2.7+ -- `BigDecimal.new` was removed)
+- Ruby 2.6 (Rails 5.2 supports up to 2.6; Phase 3 moves this to 2.7.8)
 - PostgreSQL
-- Bundler 1.x (Rails 4.2 pins `bundler < 2.0`)
+- Bundler 1.x or 2.x
 - Node.js (for assets)
 
 ## Getting started
