@@ -2,7 +2,7 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
-> **This app is mid-upgrade.** It currently runs Rails 6.1.7.10 on Ruby 2.7.8 and is being moved to
+> **This app is mid-upgrade.** It currently runs Rails 7.1.5.1 on Ruby 3.3.11 and is being moved to
 > Rails 8 / Ruby 3.3, one phase at a time. See [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md)
 > for the ladder, the known blockers, and the latent bugs found along the way.
 
@@ -37,7 +37,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Tech stack
 
-- Rails 6.1.7.10
+- Rails 7.1.5.1
 - PostgreSQL
 - Devise, Pundit
 - Sprockets, jQuery, Turbolinks
@@ -46,7 +46,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 2.7.8, via rbenv (`.ruby-version`). Phase 4 moves this to 3.3.11.
+- Ruby 3.3.11, via rbenv (`.ruby-version`)
 - PostgreSQL
 - Bundler 2.x
 - Node.js (for assets)
@@ -120,6 +120,11 @@ The `test/` directory is stock Rails scaffolding and contains no tests.
 - Rails Best Practices: `bundle exec rails_best_practices .`
 
 ## Configuration and secrets
+
+`secret_key_base` comes from `ENV["SECRET_KEY_BASE"]` in production. Development and test use the
+key Rails generates into `tmp/local_secret.txt`, which is gitignored. There is no `config/secrets.yml`
+-- `Rails.application.secrets` was removed in Rails 7.2.
+
 
 - Development and test secrets are in `config/secrets.yml`.
 - Production expects `SECRET_KEY_BASE` in the environment.
