@@ -1,11 +1,15 @@
 # TODO
 
+> Framework and Ruby upgrade work is tracked separately, phase by phase, in
+> [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md). Items below marked
+> **done** were completed while reviving the app and building its test suite.
+
 ## Modernization and maintenance
-- Upgrade Rails to 6.1/7.x and Ruby to a currently supported version.
+- Upgrade Rails to 8.0 and Ruby to 3.3 — **planned in detail**, see the upgrade plan. (Nokogiri >= 1.19.3, which closes the outstanding ReDoS advisory, requires Ruby >= 3.2, so the upgrade is the only path to it.)
 - Update gems (Devise, Pundit, Bourbon/Neat, etc.) and remove deprecated ones (e.g., CoffeeScript if introduced later).
 - Replace jQuery/Turbolinks with Hotwire (Turbo + Stimulus) or a modern frontend approach.
 - Consider using import maps or a modern bundler instead of legacy Sprockets where appropriate.
-- Add Dockerfile and docker-compose for easy local setup.
+- ~~Add Dockerfile and docker-compose for easy local setup.~~ **Not needed** — the app builds and runs natively once nokogiri is bumped off 1.8.2; see the upgrade plan for the two platform gotchas.
 - Add CI (GitHub Actions) for tests, linting, and security checks (bundler-audit, brakeman).
 
 ## Data integrity and validations
@@ -18,8 +22,12 @@
   - DB unique index on `picks (entry_id, category_id)`.
 - Add NOT NULL constraints for foreign keys and critical columns across tables.
 - Add `dependent: :destroy` where appropriate to keep data consistent (e.g., `Pool has_many :entries` and cascading picks).
+- Fix `Entry#destroy`, which currently raises `ActiveRecord::InvalidForeignKey`: `validates_associated :picks` caches the association during create, so `dependent: :destroy` walks a stale empty array. Latent only because nothing destroys an entry. Covered by a characterization spec.
+- Validate that a `Pick`'s nominee belongs to the pick's own category — nothing enforces this today.
 
 ## Authorization and security
+- **Add `authorize` to `EntriesController#update`.** It performs no authorization at all, unlike `#show` and `#edit`, so any authenticated user can rewrite any other user's picks — including after lock. Highest-priority item in this file; covered by a characterization spec that currently asserts the broken behavior.
+- Add the nil guard to `EntryPolicy#edit?` that `#show?` already has; it raises `NoMethodError` for a signed-out visitor.
 - Extend Pundit policies to cover `create`/`new` and pool membership rules (e.g., invite-only pools).
 - Ensure entries cannot be created/edited after `locks_at` at both the model and controller levels.
 - Add CSRF-safe JSON endpoints if APIs are introduced.
@@ -40,12 +48,12 @@
 - Background jobs for heavy tasks if/when added (e.g., emailing results).
 
 ## Testing and quality
-- Add model and policy tests for locking, scoring, and visibility rules.
-- Add controller/request specs for entries and pools.
-- Decide on Minitest vs. RSpec; remove the unused framework to reduce confusion.
+- ~~Add model and policy tests for locking, scoring, and visibility rules.~~ **Done.**
+- ~~Add controller/request specs for entries and pools.~~ **Done** (request specs; controller specs deliberately avoided so the suite survives Rails 5+).
+- ~~Decide on Minitest vs. RSpec.~~ **Done — RSpec.** Still to do: delete the empty `test/` scaffolding.
 - Enforce linting in CI; add pre-commit hooks.
 
 ## Developer experience
 - Expand `bin/setup` to provision DB users, run linters/tests, and seed demo data.
-- Provide sample seeds for a full ceremony to demo the app quickly.
+- ~~Provide sample seeds for a full ceremony to demo the app quickly.~~ **Done** — `db/seeds.rb` builds a ceremony, pool, and two users.
 - Write a short contribution guide (coding style, PR checks, branching model).
