@@ -1,4 +1,4 @@
-class Category < ActiveRecord::Base
+class Category < ApplicationRecord
   belongs_to :award_ceremony
   has_many :nominees
 

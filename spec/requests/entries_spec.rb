@@ -45,7 +45,7 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       expect {
-        post pool_entries_path(pool), entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) }
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
       }.to change(Entry, :count).by(1)
 
       entry = Entry.last
@@ -59,7 +59,7 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       expect {
-        post pool_entries_path(pool), entry: { picks_attributes: pick_params(nominee_for: ->(_c) { nil }) }
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(_c) { nil }) } }
       }.not_to change(Entry, :count)
 
       expect(response).to have_http_status(:ok)
@@ -131,7 +131,7 @@ RSpec.describe 'Entries', type: :request do
       entry = entry_for(owner)
       sign_in_as(owner)
 
-      patch entry_path(entry), entry: { picks_attributes: change_picks_to_losers(entry) }
+      patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
 
       expect(response).to redirect_to(entry_path(entry))
       expect(entry.reload.score).to eq(0)
@@ -140,7 +140,7 @@ RSpec.describe 'Entries', type: :request do
     it 'requires authentication' do
       entry = entry_for(owner)
 
-      patch entry_path(entry), entry: { picks_attributes: change_picks_to_losers(entry) }
+      patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
 
       expect(response).to redirect_to(new_user_session_path)
     end
@@ -158,7 +158,7 @@ RSpec.describe 'Entries', type: :request do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      patch entry_path(entry), entry: { picks_attributes: change_picks_to_losers(entry) }
+      patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
 
       expect(response).to redirect_to(entry_path(entry))
       expect(entry.reload.score).to eq(0)
@@ -169,7 +169,7 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       after_lock do
-        patch entry_path(entry), entry: { picks_attributes: change_picks_to_losers(entry) }
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
         expect(entry.reload.score).to eq(0)
       end
     end

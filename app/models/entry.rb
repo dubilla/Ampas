@@ -1,7 +1,10 @@
-class Entry < ActiveRecord::Base
+class Entry < ApplicationRecord
   belongs_to :pool
   belongs_to :user
-  has_many :picks, -> { order(:created_at) }, dependent: :destroy
+  # `inverse_of` must be explicit: the ordering scope above suppresses Rails'
+  # automatic inverse detection, which leaves `pick.entry` nil while saving
+  # nested attributes. Harmless until Rails 5 made `belongs_to` required.
+  has_many :picks, -> { order(:created_at) }, dependent: :destroy, inverse_of: :entry
   accepts_nested_attributes_for :picks
   validates_associated :picks
 

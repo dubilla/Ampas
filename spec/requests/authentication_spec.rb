@@ -29,7 +29,7 @@ RSpec.describe 'Authentication', type: :request do
 
   it 'registers a new user' do
     expect {
-      post '/users', user: { email: 'brand-new@example.com', password: 'password', password_confirmation: 'password' }
+      post '/users', params: { user: { email: 'brand-new@example.com', password: 'password', password_confirmation: 'password' } }
     }.to change(User, :count).by(1)
   end
 
@@ -38,8 +38,8 @@ RSpec.describe 'Authentication', type: :request do
 
     it 'returns to the referring page' do
       post '/users/sign_in',
-           { user: { email: user.email, password: 'password' } },
-           { 'HTTP_REFERER' => 'http://www.example.com/award_ceremonies' }
+           params: { user: { email: user.email, password: 'password' } },
+           headers: { 'HTTP_REFERER' => 'http://www.example.com/award_ceremonies' }
 
       expect(response).to redirect_to('http://www.example.com/award_ceremonies')
     end
@@ -47,8 +47,8 @@ RSpec.describe 'Authentication', type: :request do
     # Guards against bouncing the user straight back to the login form.
     it 'does not return to the sign-in page itself' do
       post '/users/sign_in',
-           { user: { email: user.email, password: 'password' } },
-           { 'HTTP_REFERER' => 'http://www.example.com/users/sign_in' }
+           params: { user: { email: user.email, password: 'password' } },
+           headers: { 'HTTP_REFERER' => 'http://www.example.com/users/sign_in' }
 
       expect(response).to redirect_to('http://www.example.com/')
     end

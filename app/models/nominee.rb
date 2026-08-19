@@ -1,3 +1,3 @@
-class Nominee < ActiveRecord::Base
+class Nominee < ApplicationRecord
   belongs_to :category
 end

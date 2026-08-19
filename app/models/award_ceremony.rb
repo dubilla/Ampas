@@ -1,4 +1,4 @@
-class AwardCeremony < ActiveRecord::Base
+class AwardCeremony < ApplicationRecord
   has_many :pools
   has_many :categories
 end
