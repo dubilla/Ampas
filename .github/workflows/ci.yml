@@ -43,9 +43,9 @@ jobs:
           bundler-cache: true
 
       - name: Load schema
-        # Schema format is :sql, so structure.sql is the source of truth --
-        # db:migrate would not reproduce it.
-        run: bundle exec rake db:create db:structure:load
+        # Schema format is :sql, so db:schema:load reads db/structure.sql.
+        # db:structure:load was removed in Rails 7.1.
+        run: bundle exec rake db:create db:schema:load
 
       - name: Run specs
         run: bundle exec rspec
