@@ -35,6 +35,12 @@ gem 'jbuilder', '~> 2.0'
 
 # Pinned: 4.2.0 is a syntax error on Ruby 2.6 (brace block after an
 # unparenthesized hash arg in sessions_controller.rb). Fixed upstream in 4.4.0.
+# Transitive dependency of sass-listen -> rb-inotify, which only resolves on
+# Linux (macOS uses rb-fsevent). ffi 1.17 dropped Ruby 2.6, and Bundler 1.17
+# locks it anyway without checking required_ruby_version, so CI fails where
+# local development cannot. Drop this pin once Phase 4 lands Ruby 3.3.
+gem 'ffi', '< 1.17'
+
 gem 'devise', '~> 4.7.3'
 
 
