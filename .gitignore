@@ -24,3 +24,6 @@
 
 # Precompiled assets
 /public/assets
+
+# Rails 7.1 generates a local dev/test secret here
+/tmp/local_secret.txt
