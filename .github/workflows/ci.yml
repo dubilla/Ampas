@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  specs:
+    name: RSpec
+    # Pinned to 22.04: ruby/setup-ruby has no prebuilt Ruby 2.6 for 24.04, which
+    # is what ubuntu-latest now resolves to. Revisit at Phase 3, when the Ruby
+    # bump to 2.7.8 lands, and again at Phase 4 for 3.3.
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      RAILS_ENV: test
+      # config/database.yml specifies no host or credentials, so point libpq at
+      # the service container through its own environment variables rather than
+      # editing the checked-in config.
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.6.10'
+          # Rails 4.2 pins bundler < 2.0.
+          bundler: '1.17.3'
+          bundler-cache: true
+
+      - name: Load schema
+        # Schema format is :sql, so structure.sql is the source of truth --
+        # db:migrate would not reproduce it.
+        run: bundle exec rake db:create db:structure:load
+
+      - name: Run specs
+        run: bundle exec rspec
