@@ -1,0 +1,10 @@
+# Required because config/application.rb uses `require "rails/all"`, which loads
+# Active Storage. The app does not store files -- this config exists so that
+# eager loading (and therefore production boot) succeeds.
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>

@@ -1,18 +1,16 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '5.2.8.1'
+gem 'rails', '6.1.7.10'
 # Use sqlite3 as the database for Active Record
 gem 'pg'
 # Pinned: 1.8.2 vendors libxml2 2.9 and no longer compiles on modern toolchains.
 # 1.13.x is the highest release supporting Ruby 2.6. See docs/rails-upgrade-plan.md.
 gem 'nokogiri', '~> 1.13.10'
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails', '~> 2.1'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
-# Use CoffeeScript for .coffee assets and views
-gem 'coffee-rails', '~> 4.2'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
@@ -39,6 +37,12 @@ gem 'jbuilder', '~> 2.0'
 # Linux (macOS uses rb-fsevent). ffi 1.17 dropped Ruby 2.6, and Bundler 1.17
 # locks it anyway without checking required_ruby_version, so CI fails where
 # local development cannot. Drop this pin once Phase 4 lands Ruby 3.3.
+# concurrent-ruby 1.3.5 dropped an implicit `require "logger"` that Rails < 7.1
+# relies on, so booting raises:
+#   uninitialized constant ActiveSupport::LoggerThreadSafeLevel::Logger
+# Rails 7.1 requires logger itself, so this pin comes off in Phase 4.
+gem 'concurrent-ruby', '< 1.3.5'
+
 gem 'ffi', '< 1.17'
 
 gem 'devise', '~> 4.7.3'
@@ -57,7 +61,7 @@ end
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 3.7'
+  gem 'web-console', '~> 4.2'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
