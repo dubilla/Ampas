@@ -1,14 +1,17 @@
 source 'https://rubygems.org'
 
-ruby '2.7.8'
+ruby '3.3.11'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '7.1.5.1'
 # Use sqlite3 as the database for Active Record
 gem 'pg'
-# Pinned to the highest release supporting Ruby 2.7. Closing the outstanding
-# ReDoS advisory needs >= 1.19.3, which requires Ruby >= 3.2 -- Phase 4.
-gem 'nokogiri', '~> 1.15.7'
+# Floor, not a pin. 1.19.3 fixes GHSA-c4rq-3m3g-8wgx, the CSS selector
+# tokenizer ReDoS that started this upgrade. It requires Ruby >= 3.2.
+gem 'nokogiri', '>= 1.19.3'
+# Ruby 3 dropped webrick from the default gems, and Rails needs an app server.
+gem 'puma', '~> 6.4'
+
 # Use SCSS for stylesheets
 gem 'sassc-rails', '~> 2.1'
 # Terser replaces Uglifier, which is ES5-only and cannot parse the `const` in
@@ -51,7 +54,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'rspec-rails', '~> 6.1'
-  gem 'factory_bot_rails', '~> 5.2'
+  gem 'factory_bot_rails', '~> 6.4'
   gem 'capybara', '~> 3.36'
   gem 'timecop', '~> 0.9'
 end

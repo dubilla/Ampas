@@ -8,10 +8,7 @@ on:
 jobs:
   specs:
     name: RSpec
-    # Pinned to 22.04: ruby/setup-ruby has no prebuilt Ruby 2.7 for 24.04, which
-    # is what ubuntu-latest now resolves to. The pin can go once Phase 4 lands
-    # Ruby 3.3.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     services:
       postgres:
@@ -41,8 +38,8 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.8'
-          bundler: '2.4.22'
+          ruby-version: '3.3.11'
+          bundler: '2.5.23'
           bundler-cache: true
 
       - name: Load schema

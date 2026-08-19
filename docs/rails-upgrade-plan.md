@@ -1,6 +1,6 @@
 # Ampas: Ruby + Rails Upgrade Plan
 
-**Status:** Phases 0–3 complete — running Rails 6.1.7.10 on Ruby 2.7.8, 59 specs green, CI on every PR
+**Status:** Phases 0–4 complete — Rails 7.1.5.1 on Ruby 3.3.11, **nokogiri 1.19.4, advisory #135 fixed**
 **Goal:** Get from Ruby 2.6.10 / Rails 4.2.8 to Ruby 3.3 / Rails 8.0, closing ~100 open Dependabot
 alerts (including [#135](https://github.com/dubilla/Ampas/security/dependabot/135), the nokogiri
 CSS-tokenizer ReDoS that requires Ruby >= 3.2 to patch).
@@ -396,26 +396,52 @@ Commit and stop.
 
 ## Phase 4 — Rails 6.1 → 7.1, and Ruby 2.7 → 3.3.11
 
-- [ ] `rbenv local 3.3.11`, `.ruby-version` and Gemfile `ruby` directive to `3.3.11`.
-- [ ] `gem 'rails', '7.1.5'`; `rails app:update`; `config.load_defaults 7.1`.
-- [ ] **`update_attributes` is gone** — already handled in Phase 2 if you did it there.
-- [ ] **`Rails.application.secrets` is removed in 7.1.** `config/secrets.yml` must go. Move
+- [x] `rbenv local 3.3.11`, `.ruby-version` and Gemfile `ruby` directive to `3.3.11`.
+- [x] `gem 'rails', '7.1.5'`; `rails app:update`; `config.load_defaults 7.1`.
+- [x] **`update_attributes` is gone** — already handled in Phase 2 if you did it there.
+- [x] **`Rails.application.secrets` is removed in 7.1.** `config/secrets.yml` must go. Move
       `secret_key_base` to `config/credentials.yml.enc` or keep reading `ENV['SECRET_KEY_BASE']`
       directly. Note: the dev and test `secret_key_base` values are **committed in plaintext** in the
       public repo today. They're dev/test-only so the exposure is minimal, but rotate them as part of
       this step rather than carrying them forward.
-- [ ] Pundit 1.1 → 2.x: `include Pundit` becomes `include Pundit::Authorization` in
+- [x] Pundit 1.1 → 2.x: `include Pundit` becomes `include Pundit::Authorization` in
       `app/controllers/application_controller.rb`.
-- [ ] Devise → 4.9.x.
-- [ ] `uglifier` → `terser`.
-- [ ] Zeitwerk is now mandatory (classic autoloader removed). `bin/rails zeitwerk:check`.
-- [ ] Ruby 3.x removals to grep for: `Fixnum`/`Bignum`, `URI.escape`, `Object#taint`. Unlikely in this
+- [x] Devise → 4.9.x.
+- [x] `uglifier` → `terser`.
+- [x] Zeitwerk is now mandatory (classic autoloader removed). `bin/rails zeitwerk:check`.
+- [x] Ruby 3.x removals to grep for: `Fixnum`/`Bignum`, `URI.escape`, `Object#taint`. Unlikely in this
       codebase but cheap to check.
-- [ ] `coffee-rails` → remove entirely. There are **zero `.coffee` files** in the app.
-- [ ] **Nokogiri can reach 1.19.4 here, which CLOSES alert #135.** The only gate on the fix is
+- [x] `coffee-rails` → remove entirely. There are **zero `.coffee` files** in the app.
+- [x] **Nokogiri can reach 1.19.4 here, which CLOSES alert #135.** The only gate on the fix is
       Ruby >= 3.2, and this phase lands Ruby 3.3.11. Nothing in Rails caps nokogiri (`loofah` and
       `rails-html-sanitizer` only require `>= 1.12`). An earlier draft of this plan said the advisory
       closed in Phase 5; that was wrong. Phase 5 contributes nothing to it.
+
+### How it actually went
+
+**The advisory is fixed.** nokogiri 1.19.4, verified directly rather than inferred: an adversarial
+hex-escape-rich CSS selector -- the exact shape described in GHSA-c4rq-3m3g-8wgx -- parses in 0.07ms
+instead of backtracking exponentially.
+
+**Every failure in this phase was production-only.** That is now three phases running where the
+suite stayed green while real deploy-blocking breakage sat underneath it:
+
+1. `Uglifier::Error: Unexpected token: keyword (const)` during precompile. Rails 7 bundles Active
+   Storage JavaScript containing ES6, and Uglifier wraps UglifyJS, which is ES5-only. Replaced with
+   terser. The stylesheet digest is byte-identical to Rails 6.1, so this was purely a JS toolchain
+   swap.
+2. `Could not find a server gem` on boot. Ruby 3 dropped webrick from the default gems. Added puma.
+   This would have been a Heroku boot failure and nothing a spec could ever catch.
+
+**Two deprecations required gem bumps rather than code changes.** `fixture_path=` -> `fixture_paths=`
+needed rspec-rails 6.1 (5.1 has no such setter). And deleting `config/secrets.yml` did not silence
+the secrets deprecation, because Devise 4.9's `SecretKeyFinder` probes
+`Rails.application.secrets` whenever no credentials file exists -- fixed by setting
+`Devise.secret_key` explicitly to `secret_key_base`, which is what Devise derived anyway.
+
+**Net cleanup:** dropped the `concurrent-ruby` pin (Rails 7.1 requires logger itself) and spring
+(two false alarms across this upgrade, and every command was prefixed with `DISABLE_SPRING=1`
+anyway). CI is finally back on `ubuntu-latest`.
 
 **Done when:** specs green on Ruby 3.3.11, screenshots match. Commit and stop.
 
@@ -479,4 +505,5 @@ Append a dated line as each phase closes.
 | 2026-08-18 | 1 | RSpec + FactoryBot + Timecop. 59 examples across models, policies, and request specs; all green. Request specs (not controller specs) and no `assigns`, so the suite survives Rails 5+. Surfaced 4 latent bugs incl. a missing authorization check on entries#update. |
 | 2026-08-19 | 2 | Rails 4.2.8 -> 5.2.8.1. `load_defaults 5.2` with GCM cookie encryption deferred; `inverse_of` on Entry#picks; `Pick#nominee` optional; ApplicationRecord; Pundit::Authorization; `update_attributes` -> `update`; Turbolinks 5; dropped inert bourbon/neat/bitters/sdoc/refills/rails_best_practices gems. 59 specs green, zero deprecations. |
 | 2026-08-19 | 3 | Rails 5.2.8.1 -> 6.1.7.10, Ruby 2.6 (system) -> 2.7.8 (rbenv), Bundler 1.17 -> 2.4.22, nokogiri -> 1.15.7. Added Sprockets 4 manifest.js and config/storage.yml, both production-only failures. sassc-rails migration was a non-event. Dropped force_ruby_platform and the ffi pin. 59 specs green. |
+| 2026-08-19 | 4 | Rails 6.1.7.10 -> 7.1.5.1, Ruby 2.7.8 -> 3.3.11, **nokogiri 1.15.7 -> 1.19.4 (advisory #135 FIXED)**. uglifier -> terser, added puma, deleted config/secrets.yml, devise 4.9.4, rspec-rails 6.1.5, dropped spring and the concurrent-ruby pin. 59 specs green, zero deprecations. |
 | | | |
