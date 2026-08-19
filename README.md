@@ -2,6 +2,10 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
+> **This app is mid-upgrade.** It currently runs Rails 4.2.8 on Ruby 2.6 and is being moved to
+> Rails 8 / Ruby 3.3, one phase at a time. See [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md)
+> for the ladder, the known blockers, and the latent bugs found along the way.
+
 ## Features
 
 - Award ceremonies with lock times to freeze entries before results
@@ -42,9 +46,9 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 2.2.2 or higher
+- Ruby 2.6 (Rails 4.2 does not run on Ruby 2.7+ -- `BigDecimal.new` was removed)
 - PostgreSQL
-- Bundler
+- Bundler 1.x (Rails 4.2 pins `bundler < 2.0`)
 - Node.js (for assets)
 
 ## Getting started
@@ -58,8 +62,15 @@ bin/setup
 Manual setup:
 
 ```bash
+# Required on Apple silicon: system Ruby reports its platform as
+# `universal-darwin`, so RubyGems may resolve x86_64 native gems on an arm64
+# machine, which fails at boot with a misleading nokogiri LoadError.
+bundle config --local force_ruby_platform true
 bundle install
-bin/rails db:create db:migrate
+
+# Schema format is :sql, so load structure.sql rather than running migrations.
+bundle exec rake db:create db:structure:load db:seed
+RAILS_ENV=test bundle exec rake db:create db:structure:load
 ```
 
 Run the server:
@@ -73,29 +84,39 @@ App runs at http://localhost:3000
 ## Database notes
 
 - Schema is stored as SQL (`config.active_record.schema_format = :sql`), so `db:schema:load`/`db:setup` read from `db/structure.sql`.
-- Seeds are currently empty. You can create sample data in the Rails console:
+- `db/seeds.rb` builds a full ceremony (4 categories, 16 nominees), a pool, and two users:
 
-```ruby
-ac = AwardCeremony.create!(name: "Oscars 2025", locks_at: 1.week.from_now)
-cat = ac.categories.create!(name: "Best Picture")
-nom_a = cat.nominees.create!(name: "Movie A")
-nom_b = cat.nominees.create!(name: "Movie B")
-pool = ac.pools.create!
-user = User.create!(email: "test@example.com", password: "password123")
-entry = pool.entries.create!(user: user, picks_attributes: [ { category_id: cat.id, nominee_id: nom_a.id } ])
-# Later, set winner:
-nom_a.update!(winner: true)
 ```
+player@example.com   / password   -- has a scored entry
+newcomer@example.com / password   -- has no entry
+```
+
+  Run it with `bundle exec rake db:seed`. It is idempotent.
 
 ## Testing
 
-The repository currently uses Rails’ default test framework (Minitest):
+RSpec, with 59 examples covering models, policies, and every route:
 
 ```bash
-bin/rake test
+bundle exec rspec
 ```
 
-RSpec is included in the Gemfile but not initialized; if you prefer RSpec, run its installer and migrate tests accordingly.
+```
+spec/models/     entry, pool, category, pick     22
+spec/policies/   entry_policy                     9
+spec/requests/   authentication, pools, entries  28
+```
+
+These are **characterization tests** -- they assert what the app does today, bugs
+included, so the Rails upgrade can be verified as behavior-preserving. Four latent
+bugs are recorded as passing specs marked `TODO(post-upgrade)` rather than fixed;
+the most serious is that `EntriesController#update` performs no authorization at
+all. See the upgrade plan for the full list.
+
+Specs are request specs rather than controller specs, and avoid `assigns`, so they
+keep working from Rails 5 onward without `rails-controller-testing`.
+
+The `test/` directory is stock Rails scaffolding and contains no tests.
 
 ## Code quality
 

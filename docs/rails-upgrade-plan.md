@@ -1,6 +1,6 @@
 # Ampas: Ruby + Rails Upgrade Plan
 
-**Status:** Phase 0 complete — app boots and serves locally on Rails 4.2
+**Status:** Phases 0–1 complete — app boots locally, 59 characterization specs green on Rails 4.2
 **Goal:** Get from Ruby 2.6.10 / Rails 4.2.8 to Ruby 3.3 / Rails 8.0, closing ~100 open Dependabot
 alerts (including [#135](https://github.com/dubilla/Ampas/security/dependabot/135), the nokogiri
 CSS-tokenizer ReDoS that requires Ruby >= 3.2 to patch).
@@ -196,40 +196,68 @@ Write **characterization tests** — they encode what the app *currently does*, 
 fix behavior here. If you find something that looks wrong, write a spec asserting the current wrong
 behavior and add a `# TODO(upgrade): looks like a bug, revisit post-upgrade` comment.
 
-- [ ] Create `spec/`, `spec/rails_helper.rb`, `spec/spec_helper.rb` (`rails g rspec:install`).
-- [ ] Add `factory_bot_rails`, `capybara`, `database_cleaner-active_record` to the `:test` group.
-- [ ] Factories for all 6 models, plus a `pool_with_categories` trait — most specs need a ceremony
+- [x] Create `spec/`, `spec/rails_helper.rb`, `spec/spec_helper.rb` (`rails g rspec:install`).
+- [x] Add `factory_bot_rails`, `capybara`, `database_cleaner-active_record` to the `:test` group.
+- [x] Factories for all 6 models, plus a `pool_with_categories` trait — most specs need a ceremony
       with categories and nominees.
 
 **Model specs** (`spec/models/`):
-- [ ] `Entry#score` — counts picks whose nominee is a winner.
-- [ ] `Entry#locked?` and `Pool#locked?` — delegate through to `award_ceremony.locks_at`; test both
+- [x] `Entry#score` — counts picks whose nominee is a winner.
+- [x] `Entry#locked?` and `Pool#locked?` — delegate through to `award_ceremony.locks_at`; test both
       sides of the boundary with `travel_to`.
-- [ ] `Entry#name` — delegates to `user.email`.
-- [ ] `Category#winner` — note this uses `nominees.find(&:winner?)`, the *Enumerable* `find`, not the
+- [x] `Entry#name` — delegates to `user.email`.
+- [x] `Category#winner` — note this uses `nominees.find(&:winner?)`, the *Enumerable* `find`, not the
       AR one. Preserve that; it returns `nil` with no winner.
-- [ ] `Pick#complete?` validation — invalid without a nominee.
-- [ ] `Entry` `validates_associated :picks` + `accepts_nested_attributes_for :picks`.
+- [x] `Pick#complete?` validation — invalid without a nominee.
+- [x] `Entry` `validates_associated :picks` + `accepts_nested_attributes_for :picks`.
 
 **Policy specs** (`spec/policies/entry_policy_spec.rb`):
-- [ ] `show?` — true if the user owns the entry, **or** if the entry is locked (public after lock).
-- [ ] `edit?` — true only if the user owns it **and** it's not locked.
-- [ ] Nil-user cases. `edit?` currently calls `user.entries` with no nil guard — if that raises
+- [x] `show?` — true if the user owns the entry, **or** if the entry is locked (public after lock).
+- [x] `edit?` — true only if the user owns it **and** it's not locked.
+- [x] Nil-user cases. `edit?` currently calls `user.entries` with no nil guard — if that raises
       today, assert that it raises.
 
 **Request/feature specs** (`spec/requests/` or `spec/features/`):
-- [ ] Sign up, sign in, sign out (Devise).
-- [ ] `HomeController#index` — redirects to `pools_path` when the user has pools, renders otherwise.
-- [ ] `PoolsController#index` — redirects to root when signed out; lists the user's pools when in.
-- [ ] `PoolsController#show`.
-- [ ] `EntriesController#new` — builds one `Pick` per category on the pool's ceremony. This is the
+- [x] Sign up, sign in, sign out (Devise).
+- [x] `HomeController#index` — redirects to `pools_path` when the user has pools, renders otherwise.
+- [x] `PoolsController#index` — redirects to root when signed out; lists the user's pools when in.
+- [x] `PoolsController#show`.
+- [x] `EntriesController#new` — builds one `Pick` per category on the pool's ceremony. This is the
       most intricate code in the app; cover it well.
-- [ ] `EntriesController#create` — happy path redirects to the entry; invalid re-renders `new`.
-- [ ] `EntriesController#update` — happy path and invalid path.
-- [ ] `EntriesController#show` / `#edit` authorization — a non-owner is rejected on an unlocked entry.
-- [ ] `ApplicationController#after_sign_in_path_for` — the referer logic (returns to referer unless
+- [x] `EntriesController#create` — happy path redirects to the entry; invalid re-renders `new`.
+- [x] `EntriesController#update` — happy path and invalid path.
+- [x] `EntriesController#show` / `#edit` authorization — a non-owner is rejected on an unlocked entry.
+- [x] `ApplicationController#after_sign_in_path_for` — the referer logic (returns to referer unless
       the referer *is* the sign-in page). Easy to break silently in a Devise upgrade.
-- [ ] Layout switching — `devise` layout on Devise controllers, `application` elsewhere.
+- [x] Layout switching — `devise` layout on Devise controllers, `application` elsewhere.
+
+### What the suite found
+
+Writing these specs surfaced four things the code does that nobody would have predicted from reading
+it. All are recorded as passing characterization specs (asserting current behavior) with
+`TODO(post-upgrade)` markers — **not fixed**, so the upgrade stays a pure behavior-preserving change.
+
+1. **`EntriesController#update` performs no authorization at all.** `#show` and `#edit` both call
+   `authorize`; `#update` does not. Any authenticated user can rewrite any other user's picks, at any
+   time, including after the pool has locked. This is a genuine access-control hole and is materially
+   more serious than the Dependabot advisory that started this work — though, like everything else
+   here, it is not currently exploitable because nothing is deployed. **Fix this first once the
+   upgrade lands.** Covered by `spec/requests/entries_spec.rb`.
+
+2. **`Entry#destroy` raises `ActiveRecord::InvalidForeignKey`.** `validates_associated :picks` loads
+   and caches the picks association during `Entry.create!`; picks added afterwards don't invalidate
+   that cache, so `dependent: :destroy` walks a stale empty array and deletes nothing, and the DELETE
+   then trips the `picks -> entries` foreign key. Latent only because no route or action destroys an
+   entry. Fix with `dependent: :delete_all`, or reload before destroying.
+
+3. **`EntryPolicy#edit?` has no nil guard** where `#show?` does, so it raises `NoMethodError` rather
+   than returning false for a signed-out visitor. Masked today by `before_action :authenticate_user!`.
+
+4. **`Pick` accepts a nominee from an unrelated category.** Nothing validates that
+   `pick.nominee.category == pick.category`.
+
+Also noted: `pools/show` renders a hardcoded `<h3>Pool</h3>` and never names the ceremony, despite
+`Pool#award_ceremony_name` existing for exactly that.
 
 **Done when:** `bundle exec rspec` is green, and coverage includes every route in `config/routes.rb`.
 Commit. **This is a good long stop point.**
@@ -391,4 +419,5 @@ Append a dated line as each phase closes.
 | Date | Phase | Notes |
 |---|---|---|
 | 2026-08-18 | 0 | App revived locally. nokogiri 1.8.2 -> 1.13.10, devise 4.2.0 -> 4.7.3, `force_ruby_platform`. DB created from `structure.sql`, real `db/seeds.rb` written. All routes verified incl. authenticated sign-in -> pools -> entry. Docker deemed unnecessary. |
+| 2026-08-18 | 1 | RSpec + FactoryBot + Timecop. 59 examples across models, policies, and request specs; all green. Request specs (not controller specs) and no `assigns`, so the suite survives Rails 5+. Surfaced 4 latent bugs incl. a missing authorization check on entries#update. |
 | | | |
