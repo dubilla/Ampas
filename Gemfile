@@ -1,12 +1,14 @@
 source 'https://rubygems.org'
 
+ruby '2.7.8'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '6.1.7.10'
 # Use sqlite3 as the database for Active Record
 gem 'pg'
-# Pinned: 1.8.2 vendors libxml2 2.9 and no longer compiles on modern toolchains.
-# 1.13.x is the highest release supporting Ruby 2.6. See docs/rails-upgrade-plan.md.
-gem 'nokogiri', '~> 1.13.10'
+# Pinned to the highest release supporting Ruby 2.7. Closing the outstanding
+# ReDoS advisory needs >= 1.19.3, which requires Ruby >= 3.2 -- Phase 4.
+gem 'nokogiri', '~> 1.15.7'
 # Use SCSS for stylesheets
 gem 'sassc-rails', '~> 2.1'
 # Use Uglifier as compressor for JavaScript assets

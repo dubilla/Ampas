@@ -1,6 +1,6 @@
 # Ampas: Ruby + Rails Upgrade Plan
 
-**Status:** Phases 0–2 complete — running Rails 5.2.8.1, 59 specs green, CI on every PR
+**Status:** Phases 0–3 complete — running Rails 6.1.7.10 on Ruby 2.7.8, 59 specs green, CI on every PR
 **Goal:** Get from Ruby 2.6.10 / Rails 4.2.8 to Ruby 3.3 / Rails 8.0, closing ~100 open Dependabot
 alerts (including [#135](https://github.com/dubilla/Ampas/security/dependabot/135), the nokogiri
 CSS-tokenizer ReDoS that requires Ruby >= 3.2 to patch).
@@ -343,26 +343,51 @@ Devise initializer was also left alone — Devise 4.7.3 runs it without deprecat
 
 Two changes; do the Rails hop first, then the Ruby hop, as separate commits.
 
-- [ ] `gem 'rails', '6.1.7.10'`; `rails app:update`; `config.load_defaults 6.1`.
-- [ ] **Zeitwerk autoloading.** Rails 6 defaults to it. `Users::SessionsController` in
+- [x] `gem 'rails', '6.1.7.10'`; `rails app:update`; `config.load_defaults 6.1`.
+- [x] **Zeitwerk autoloading.** Rails 6 defaults to it. `Users::SessionsController` in
       `app/controllers/users/` already follows the convention, so this should be quiet — verify with
       `bin/rails zeitwerk:check`.
-- [ ] `config/database.yml` — Rails 6 multi-database format is optional; the current single-database
+- [x] `config/database.yml` — Rails 6 multi-database format is optional; the current single-database
       shape still works. Leave it unless something complains.
-- [ ] Devise → 4.8.x.
-- [ ] Sprockets 3 → 4: add `app/assets/config/manifest.js`. Without it, assets silently 404 in
+- [x] Devise → 4.8.x.
+- [x] Sprockets 3 → 4: add `app/assets/config/manifest.js`. Without it, assets silently 404 in
       production. Screenshot-check this one.
-- [ ] `sass-rails` → `sassc-rails` (libsass; the `sass` gem is EOL). Vendored Bourbon 4 / Neat 1.8 are
+- [x] `sass-rails` → `sassc-rails` (libsass; the `sass` gem is EOL). Vendored Bourbon 4 / Neat 1.8 are
       SCSS-3 era and *usually* compile under SassC — but this is the highest-risk styling step in the
       project. If SassC chokes, the fallback is to compile the vendored stylesheets once and commit the
       resulting CSS, retiring the SCSS toolchain entirely. For an app with two custom stylesheets
       (`layouts/application.scss`, `entries/entries.scss`) that is a perfectly reasonable outcome.
-- [ ] Regenerate `db/structure.sql` (6.1 changes the `pg_dump` invocation).
-- [ ] **Then** bump Ruby: add `.ruby-version` with `2.7.8`, add `ruby '2.7.8'` to the Gemfile, exit
+- [x] Regenerate `db/structure.sql` (6.1 changes the `pg_dump` invocation).
+- [x] **Then** bump Ruby: add `.ruby-version` with `2.7.8`, add `ruby '2.7.8'` to the Gemfile, exit
       Docker, `rbenv local 2.7.8`, `bundle install` natively.
-- [ ] Fix Ruby 2.7 keyword-argument separation warnings (`ruby -W:deprecated`). With no metaprogramming
+- [x] Fix Ruby 2.7 keyword-argument separation warnings (`ruby -W:deprecated`). With no metaprogramming
       in this codebase there should be few or none, but the gems will be noisy until they're all
       updated.
+
+### How it actually went
+
+**The two real failures were both invisible to the test suite, and both production-only.**
+
+1. **Sprockets 4 requires `app/assets/config/manifest.js`.** Without it assets are simply not
+   precompiled — development keeps working off the live pipeline while production 404s.
+2. **Eager loading aborted** with `Couldn't find Active Storage configuration in config/storage.yml`.
+   The app predates Active Storage but uses `require "rails/all"`, so Rails 6 loads it. Production
+   sets `config.eager_load = true`, so this was a deploy-time boot failure and nothing else.
+
+Neither would have been caught by specs at any coverage level. The checks that found them —
+`rails zeitwerk:check`, `RAILS_ENV=production rails runner`, and `RAILS_ENV=production rails
+assets:precompile` — are now worth running every phase.
+
+**The riskiest predicted step was a non-event.** `sass-rails` -> `sassc-rails` against the vendored
+Bourbon 4 / Neat 1.8 SCSS compiled without a single change. The fallback plan (compile once, commit
+plain CSS, retire the SCSS toolchain) was not needed. Zeitwerk was likewise uneventful — every file
+already sat at its conventional path.
+
+**One new pin, two removed.** `concurrent-ruby` had to be pinned below 1.3.5, which dropped an
+implicit `require "logger"` that Rails < 7.1 depends on. In exchange, moving to rbenv Ruby 2.7.8 and
+Bundler 2.4 removed both earlier hacks: `force_ruby_platform` (rbenv Ruby reports a real
+`arm64-darwin-25` instead of the ambiguous `universal-darwin-25`) and the `ffi < 1.17` pin (Bundler
+2.4 honours `required_ruby_version` when resolving, which 1.17 did not).
 
 **Done when:** specs green natively on rbenv 2.7.8, `Dockerfile.upgrade` deleted, screenshots match.
 Commit and stop.
@@ -387,8 +412,10 @@ Commit and stop.
 - [ ] Ruby 3.x removals to grep for: `Fixnum`/`Bignum`, `URI.escape`, `Object#taint`. Unlikely in this
       codebase but cheap to check.
 - [ ] `coffee-rails` → remove entirely. There are **zero `.coffee` files** in the app.
-- [ ] **Nokogiri can now reach 1.18.x** (Ruby >= 3.1) — a large chunk of the 30 open nokogiri alerts
-      closes here. Alert #135 still needs Rails 8 / Ruby 3.2+, one phase away.
+- [ ] **Nokogiri can reach 1.19.4 here, which CLOSES alert #135.** The only gate on the fix is
+      Ruby >= 3.2, and this phase lands Ruby 3.3.11. Nothing in Rails caps nokogiri (`loofah` and
+      `rails-html-sanitizer` only require `>= 1.12`). An earlier draft of this plan said the advisory
+      closed in Phase 5; that was wrong. Phase 5 contributes nothing to it.
 
 **Done when:** specs green on Ruby 3.3.11, screenshots match. Commit and stop.
 
@@ -397,8 +424,7 @@ Commit and stop.
 ## Phase 5 — Rails 7.1 → 8.0, and close the alerts
 
 - [ ] `gem 'rails', '8.0.x'`; `rails app:update`; `config.load_defaults 8.0`.
-- [ ] **`bundle update nokogiri` → >= 1.19.3.** This closes
-      [alert #135](https://github.com/dubilla/Ampas/security/dependabot/135) — the actual objective.
+- [ ] Confirm nokogiri is still >= 1.19.3. Alert #135 closes in **Phase 4**, not here.
 - [ ] Front-end decision. Rails 8 defaults to Propshaft + Turbo + Stimulus + importmaps. The app's JS
       is three sprockets directives and nothing else, so either path is cheap:
       - *Minimal:* keep Sprockets, keep jQuery + Turbolinks 5. Least work, most legacy.
@@ -452,4 +478,5 @@ Append a dated line as each phase closes.
 | 2026-08-18 | 0 | App revived locally. nokogiri 1.8.2 -> 1.13.10, devise 4.2.0 -> 4.7.3, `force_ruby_platform`. DB created from `structure.sql`, real `db/seeds.rb` written. All routes verified incl. authenticated sign-in -> pools -> entry. Docker deemed unnecessary. |
 | 2026-08-18 | 1 | RSpec + FactoryBot + Timecop. 59 examples across models, policies, and request specs; all green. Request specs (not controller specs) and no `assigns`, so the suite survives Rails 5+. Surfaced 4 latent bugs incl. a missing authorization check on entries#update. |
 | 2026-08-19 | 2 | Rails 4.2.8 -> 5.2.8.1. `load_defaults 5.2` with GCM cookie encryption deferred; `inverse_of` on Entry#picks; `Pick#nominee` optional; ApplicationRecord; Pundit::Authorization; `update_attributes` -> `update`; Turbolinks 5; dropped inert bourbon/neat/bitters/sdoc/refills/rails_best_practices gems. 59 specs green, zero deprecations. |
+| 2026-08-19 | 3 | Rails 5.2.8.1 -> 6.1.7.10, Ruby 2.6 (system) -> 2.7.8 (rbenv), Bundler 1.17 -> 2.4.22, nokogiri -> 1.15.7. Added Sprockets 4 manifest.js and config/storage.yml, both production-only failures. sassc-rails migration was a non-event. Dropped force_ruby_platform and the ffi pin. 59 specs green. |
 | | | |
