@@ -65,8 +65,8 @@ Manual setup:
 bundle install
 
 # Schema format is :sql, so load structure.sql rather than running migrations.
-bundle exec rake db:create db:structure:load db:seed
-RAILS_ENV=test bundle exec rake db:create db:structure:load
+bundle exec rake db:create db:schema:load db:seed
+RAILS_ENV=test bundle exec rake db:create db:schema:load
 ```
 
 Run the server:
@@ -79,7 +79,7 @@ App runs at http://localhost:3000
 
 ## Database notes
 
-- Schema is stored as SQL (`config.active_record.schema_format = :sql`), so `db:schema:load`/`db:setup` read from `db/structure.sql`.
+- Schema is stored as SQL (`config.active_record.schema_format = :sql`), so `db:schema:load` reads from `db/structure.sql`.
 - `db/seeds.rb` builds a full ceremony (4 categories, 16 nominees), a pool, and two users:
 
 ```
