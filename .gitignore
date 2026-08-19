@@ -15,3 +15,9 @@
 /log/*
 !/log/.keep
 /tmp
+
+# Bundled gems (local dev)
+/vendor/bundle
+
+# Dev server output
+/logs

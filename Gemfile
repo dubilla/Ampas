@@ -4,6 +4,9 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.8'
 # Use sqlite3 as the database for Active Record
 gem 'pg'
+# Pinned: 1.8.2 vendors libxml2 2.9 and no longer compiles on modern toolchains.
+# 1.13.x is the highest release supporting Ruby 2.6. See docs/rails-upgrade-plan.md.
+gem 'nokogiri', '~> 1.13.10'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -31,7 +34,9 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'devise'
+# Pinned: 4.2.0 is a syntax error on Ruby 2.6 (brace block after an
+# unparenthesized hash arg in sessions_controller.rb). Fixed upstream in 4.4.0.
+gem 'devise', '~> 4.7.3'
 
 gem 'bitters'
 gem 'bourbon'
