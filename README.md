@@ -2,7 +2,7 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
-> **This app is mid-upgrade.** It currently runs Rails 5.2.8.1 on Ruby 2.6 and is being moved to
+> **This app is mid-upgrade.** It currently runs Rails 6.1.7.10 on Ruby 2.7.8 and is being moved to
 > Rails 8 / Ruby 3.3, one phase at a time. See [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md)
 > for the ladder, the known blockers, and the latent bugs found along the way.
 
@@ -37,7 +37,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Tech stack
 
-- Rails 5.2.8.1
+- Rails 6.1.7.10
 - PostgreSQL
 - Devise, Pundit
 - Sprockets, jQuery, Turbolinks
@@ -46,9 +46,9 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 2.6 (Rails 5.2 supports up to 2.6; Phase 3 moves this to 2.7.8)
+- Ruby 2.7.8, via rbenv (`.ruby-version`). Phase 4 moves this to 3.3.11.
 - PostgreSQL
-- Bundler 1.x or 2.x
+- Bundler 2.x
 - Node.js (for assets)
 
 ## Getting started
@@ -62,10 +62,6 @@ bin/setup
 Manual setup:
 
 ```bash
-# Required on Apple silicon: system Ruby reports its platform as
-# `universal-darwin`, so RubyGems may resolve x86_64 native gems on an arm64
-# machine, which fails at boot with a misleading nokogiri LoadError.
-bundle config --local force_ruby_platform true
 bundle install
 
 # Schema format is :sql, so load structure.sql rather than running migrations.
