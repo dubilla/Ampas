@@ -1,6 +1,7 @@
 # Ampas: Ruby + Rails Upgrade Plan
 
 **Status:** Phases 0–4 complete — Rails 7.1.5.1 on Ruby 3.3.11, **nokogiri 1.19.4, advisory #135 fixed**
+**Superseded:** work continues in [`upgrade-ladder.md`](upgrade-ladder.md). This file is the history.
 **Goal:** Get from Ruby 2.6.10 / Rails 4.2.8 to Ruby 3.3 / Rails 8.0, closing ~100 open Dependabot
 alerts (including [#135](https://github.com/dubilla/Ampas/security/dependabot/135), the nokogiri
 CSS-tokenizer ReDoS that requires Ruby >= 3.2 to patch).
@@ -448,6 +449,9 @@ anyway). CI is finally back on `ubuntu-latest`.
 ---
 
 ## Phase 5 — Rails 7.1 → 8.0, and close the alerts
+
+> **Superseded (2026-11-13)** by [`upgrade-ladder.md`](upgrade-ladder.md). Rails 8.0 lost support
+> on 2026-11-07, so the target is now Rails 8.1 on Ruby 3.4. The notes below are kept for reference.
 
 - [ ] `gem 'rails', '8.0.x'`; `rails app:update`; `config.load_defaults 8.0`.
 - [ ] Confirm nokogiri is still >= 1.19.3. Alert #135 closes in **Phase 4**, not here.
