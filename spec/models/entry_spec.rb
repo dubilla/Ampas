@@ -84,11 +84,10 @@ RSpec.describe Entry do
     # `dependent: :destroy` iterates a stale empty array, deletes nothing, and the
     # DELETE then trips the picks->entries foreign key.
     #
-    # Latent today only because nothing in the app destroys an entry: there is no
-    # destroy action and no route for one. Left as-is so the upgrade is a pure
-    # behavior-preserving change.
+    # Latent only because nothing in the app destroys an entry: there is no
+    # destroy action and no route for one.
     #
-    # TODO(post-upgrade): fix by reloading before destroy, or by replacing
+    # TODO: fix by reloading before destroy, or by replacing
     # `dependent: :destroy` with `dependent: :delete_all`.
     it 'fails to destroy picks when the association cache is stale' do
       entry = create(:entry)

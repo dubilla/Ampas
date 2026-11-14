@@ -13,7 +13,7 @@ RSpec.describe Pick do
   end
 
   # Characterization: nothing currently requires a pick's nominee to belong to
-  # the pick's category. Recorded as-is; see TODO in the upgrade plan.
+  # the pick's category.
   it 'permits a nominee from an unrelated category' do
     expect(build(:pick, category: create(:category), nominee: create(:nominee))).to be_valid
   end

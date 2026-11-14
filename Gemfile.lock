@@ -333,7 +333,6 @@ DEPENDENCIES
   capybara (~> 3.36)
   devise (~> 4.9.4)
   factory_bot_rails (~> 6.4)
-  ffi (< 1.17)
   jbuilder (~> 2.0)
   jquery-rails
   nokogiri (>= 1.19.3)

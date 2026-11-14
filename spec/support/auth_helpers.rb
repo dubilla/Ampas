@@ -1,7 +1,6 @@
 # Signs in through the real Devise endpoint rather than through
-# Devise::Test::ControllerHelpers. Going over HTTP keeps these specs
-# independent of Devise's internal test API, which has changed across
-# versions -- important for a suite meant to survive a framework upgrade.
+# Devise::Test::ControllerHelpers, so specs don't depend on Devise's internal
+# test API.
 module AuthHelpers
   def sign_in_as(user, password: 'password')
     post '/users/sign_in', params: { user: { email: user.email, password: password } }

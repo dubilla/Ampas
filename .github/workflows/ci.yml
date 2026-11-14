@@ -44,7 +44,6 @@ jobs:
 
       - name: Load schema
         # Schema format is :sql, so db:schema:load reads db/structure.sql.
-        # db:structure:load was removed in Rails 7.1.
         run: bundle exec rake db:create db:schema:load
 
       - name: Run specs

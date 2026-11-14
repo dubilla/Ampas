@@ -1,16 +1,11 @@
 # TODO
 
-> Framework and Ruby upgrade work is tracked separately, phase by phase, in
-> [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md). Items below marked
-> **done** were completed while reviving the app and building its test suite.
-
 ## Modernization and maintenance
-- Upgrade Rails to 8.0 and Ruby to 3.3 — **planned in detail**, see the upgrade plan. (Nokogiri >= 1.19.3, which closes the outstanding ReDoS advisory, requires Ruby >= 3.2, so the upgrade is the only path to it.)
+- Upgrade to Rails 8.1 and Ruby 3.4.
 - Update gems (Devise, Pundit, Bourbon/Neat, etc.) and remove deprecated ones (e.g., CoffeeScript if introduced later).
 - Replace jQuery/Turbolinks with Hotwire (Turbo + Stimulus) or a modern frontend approach.
 - Consider using import maps or a modern bundler instead of legacy Sprockets where appropriate.
-- ~~Add Dockerfile and docker-compose for easy local setup.~~ **Not needed** — the app builds and runs natively once nokogiri is bumped off 1.8.2; see the upgrade plan for the two platform gotchas.
-- Add CI (GitHub Actions) for tests, linting, and security checks (bundler-audit, brakeman).
+- Add linting and security checks (bundler-audit, brakeman) to CI.
 
 ## Data integrity and validations
 - Add presence validations where missing (e.g., `Pool.award_ceremony`, `Category.award_ceremony`, `Entry.pool`, `Entry.user`).
@@ -48,12 +43,9 @@
 - Background jobs for heavy tasks if/when added (e.g., emailing results).
 
 ## Testing and quality
-- ~~Add model and policy tests for locking, scoring, and visibility rules.~~ **Done.**
-- ~~Add controller/request specs for entries and pools.~~ **Done** (request specs; controller specs deliberately avoided so the suite survives Rails 5+).
-- ~~Decide on Minitest vs. RSpec.~~ **Done — RSpec.** Still to do: delete the empty `test/` scaffolding.
+- Delete the empty `test/` scaffolding.
 - Enforce linting in CI; add pre-commit hooks.
 
 ## Developer experience
 - Expand `bin/setup` to provision DB users, run linters/tests, and seed demo data.
-- ~~Provide sample seeds for a full ceremony to demo the app quickly.~~ **Done** — `db/seeds.rb` builds a ceremony, pool, and two users.
 - Write a short contribution guide (coding style, PR checks, branching model).

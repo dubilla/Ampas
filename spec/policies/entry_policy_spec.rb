@@ -49,7 +49,7 @@ RSpec.describe EntryPolicy do
     # CHARACTERIZATION: #edit? has no nil guard, unlike #show?. It raises rather
     # than returning false. Harmless today because EntriesController requires
     # authentication before authorizing, so `user` is never nil in practice.
-    # TODO(post-upgrade): add a nil guard for symmetry with #show?.
+    # TODO: add a nil guard for symmetry with #show?.
     it 'raises for a signed-out visitor' do
       expect { described_class.new(nil, entry).edit? }.to raise_error(NoMethodError)
     end
