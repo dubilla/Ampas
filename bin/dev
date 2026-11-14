@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+mkdir -p logs
+: > logs/dev.log
+bin/rails server "$@" 2>&1 | tee -i logs/dev.log

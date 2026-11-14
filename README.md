@@ -2,9 +2,9 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
-> **This app is mid-upgrade.** It currently runs Rails 7.1.5.1 on Ruby 3.3.11 and is being moved to
-> Rails 8 / Ruby 3.3, one phase at a time. See [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md)
-> for the ladder, the known blockers, and the latent bugs found along the way.
+> **This app is mid-upgrade.** It currently runs Rails 7.1.5.1 on Ruby 3.3.13 and is being moved to
+> Rails 8.1 / Ruby 3.4, one step at a time. See [docs/upgrade-ladder.md](docs/upgrade-ladder.md)
+> for the ladder, and [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md) for the history.
 
 ## Features
 
@@ -46,7 +46,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 3.3.11, via rbenv (`.ruby-version`)
+- Ruby 3.3.13, via rbenv (`.ruby-version`)
 - PostgreSQL
 - Bundler 2.x
 - Node.js (for assets)
@@ -65,17 +65,29 @@ Manual setup:
 bundle install
 
 # Schema format is :sql, so load structure.sql rather than running migrations.
+# In development this also creates and loads the test database.
 bundle exec rake db:create db:schema:load db:seed
-RAILS_ENV=test bundle exec rake db:create db:schema:load
+```
+
+If an Apple Silicon Mac has both an arm64 Homebrew (`/opt/homebrew`) and an Intel one
+(`/usr/local`) and the Intel one comes first on `PATH`, native builds link x86_64 libraries and fail
+or crash at load (`dyld: missing symbol called`). In that case, point the builds at the arm64
+Homebrew explicitly:
+
+```bash
+RUBY_CONFIGURE_OPTS="--with-openssl-dir=/opt/homebrew/opt/openssl@3 --with-libyaml-dir=/opt/homebrew/opt/libyaml" \
+  rbenv install
+bundle config set --local build.pg --with-pg-config=/opt/homebrew/bin/pg_config
 ```
 
 Run the server:
 
 ```bash
-bin/rails server
+bin/dev
 ```
 
-App runs at http://localhost:3000
+`bin/dev` wraps `bin/rails server` and mirrors its output to `logs/dev.log` (gitignored), which is
+truncated on each start. App runs at http://localhost:3000
 
 ## Database notes
 
