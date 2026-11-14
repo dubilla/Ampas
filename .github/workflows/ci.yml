@@ -49,3 +49,20 @@ jobs:
 
       - name: Run specs
         run: bundle exec rspec
+
+      - name: Check autoloading
+        run: bundle exec rails zeitwerk:check
+
+      # Test mode neither eager-loads code nor compiles assets, so a green suite
+      # can hide failures that only show up when production boots.
+      - name: Boot in production
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE: dummy
+        run: bundle exec rails runner 'puts "ok"'
+
+      - name: Precompile assets
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE: dummy
+        run: bundle exec rails assets:precompile
