@@ -2,10 +2,6 @@
 
 A Ruby on Rails web application for running award-prediction pools (e.g., Oscars-style). Organizers create pools tied to an award ceremony and its categories/nominees. Participants join a pool, submit an entry by picking nominees per category, and once results are revealed the app scores entries and ranks participants. Entries are hidden from others until the ceremony “locks,” keeping picks private until the event starts.
 
-> **This app is mid-upgrade.** It currently runs Rails 7.1.5.1 on Ruby 3.3.13 and is being moved to
-> Rails 8.1 / Ruby 3.4, one step at a time. See [docs/upgrade-ladder.md](docs/upgrade-ladder.md)
-> for the ladder, and [docs/rails-upgrade-plan.md](docs/rails-upgrade-plan.md) for the history.
-
 ## Features
 
 - Award ceremonies with lock times to freeze entries before results
@@ -42,7 +38,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 - Devise, Pundit
 - Sprockets, jQuery, Turbolinks
 - Bourbon/Neat/Bitters (SCSS)
-- Tests: Rails default Minitest (RSpec is present in Gemfile but not configured)
+- RSpec
 
 ## Requirements
 
@@ -69,10 +65,8 @@ bundle install
 bundle exec rake db:create db:schema:load db:seed
 ```
 
-If an Apple Silicon Mac has both an arm64 Homebrew (`/opt/homebrew`) and an Intel one
-(`/usr/local`) and the Intel one comes first on `PATH`, native builds link x86_64 libraries and fail
-or crash at load (`dyld: missing symbol called`). In that case, point the builds at the arm64
-Homebrew explicitly:
+On Apple Silicon, if an Intel Homebrew in `/usr/local` shadows `/opt/homebrew`, native builds fail
+or crash at load (`dyld: missing symbol called`). Point them at the arm64 libraries:
 
 ```bash
 RUBY_CONFIGURE_OPTS="--with-openssl-dir=/opt/homebrew/opt/openssl@3 --with-libyaml-dir=/opt/homebrew/opt/libyaml" \
@@ -86,8 +80,7 @@ Run the server:
 bin/dev
 ```
 
-`bin/dev` wraps `bin/rails server` and mirrors its output to `logs/dev.log` (gitignored), which is
-truncated on each start. App runs at http://localhost:3000
+`bin/dev` also writes server output to `logs/dev.log`. App runs at http://localhost:3000
 
 ## Database notes
 
@@ -115,14 +108,9 @@ spec/policies/   entry_policy                     9
 spec/requests/   authentication, pools, entries  28
 ```
 
-These are **characterization tests** -- they assert what the app does today, bugs
-included, so the Rails upgrade can be verified as behavior-preserving. Four latent
-bugs are recorded as passing specs marked `TODO(post-upgrade)` rather than fixed;
-the most serious is that `EntriesController#update` performs no authorization at
-all. See the upgrade plan for the full list.
-
-Specs are request specs rather than controller specs, and avoid `assigns`, so they
-keep working from Rails 5 onward without `rails-controller-testing`.
+These are **characterization tests**: they assert what the app does today, bugs
+included. Known bugs are recorded as passing specs marked `TODO`; the most serious
+is that `EntriesController#update` performs no authorization at all. See `TODO.md`.
 
 The `test/` directory is stock Rails scaffolding and contains no tests.
 
@@ -134,12 +122,7 @@ The `test/` directory is stock Rails scaffolding and contains no tests.
 ## Configuration and secrets
 
 `secret_key_base` comes from `ENV["SECRET_KEY_BASE"]` in production. Development and test use the
-key Rails generates into `tmp/local_secret.txt`, which is gitignored. There is no `config/secrets.yml`
--- `Rails.application.secrets` was removed in Rails 7.2.
-
-
-- Development and test secrets are in `config/secrets.yml`.
-- Production expects `SECRET_KEY_BASE` in the environment.
+key Rails generates into `tmp/local_secret.txt`, which is gitignored.
 
 ## License
 

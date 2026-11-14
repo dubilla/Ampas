@@ -4,18 +4,14 @@ ruby '3.3.13'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '7.1.5.1'
-# Use sqlite3 as the database for Active Record
 gem 'pg'
-# Floor, not a pin. 1.19.3 fixes GHSA-c4rq-3m3g-8wgx, the CSS selector
-# tokenizer ReDoS that started this upgrade. It requires Ruby >= 3.2.
+# 1.19.3 fixes GHSA-c4rq-3m3g-8wgx.
 gem 'nokogiri', '>= 1.19.3'
-# Ruby 3 dropped webrick from the default gems, and Rails needs an app server.
 gem 'puma', '~> 6.4'
 
 # Use SCSS for stylesheets
 gem 'sassc-rails', '~> 2.1'
-# Terser replaces Uglifier, which is ES5-only and cannot parse the `const` in
-# Rails 7's bundled Active Storage JavaScript.
+# Uglifier can't parse ES6.
 gem 'terser', '~> 1.2'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -36,14 +32,6 @@ gem 'jbuilder', '~> 2.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
-
-# Pinned: 4.2.0 is a syntax error on Ruby 2.6 (brace block after an
-# unparenthesized hash arg in sessions_controller.rb). Fixed upstream in 4.4.0.
-# Transitive dependency of sass-listen -> rb-inotify, which only resolves on
-# Linux (macOS uses rb-fsevent). ffi 1.17 dropped Ruby 2.6, and Bundler 1.17
-# locks it anyway without checking required_ruby_version, so CI fails where
-# local development cannot. Drop this pin once Phase 4 lands Ruby 3.3.
-gem 'ffi', '< 1.17'
 
 gem 'devise', '~> 4.9.4'
 

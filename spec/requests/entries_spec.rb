@@ -149,10 +149,9 @@ RSpec.describe 'Entries', type: :request do
     #
     # EntriesController#update never calls `authorize`, unlike #show and #edit. Any
     # authenticated user can therefore rewrite any other user's picks, including
-    # after the pool has locked. Recorded as-is so the upgrade stays behavior-
-    # preserving; see docs/rails-upgrade-plan.md.
+    # after the pool has locked.
     #
-    # TODO(post-upgrade): add `authorize entry` to #update and flip these two
+    # TODO: add `authorize entry` to #update and flip these two
     # examples to expect Pundit::NotAuthorizedError.
     it "allows any signed-in user to rewrite another user's picks" do
       entry = entry_for(owner)
