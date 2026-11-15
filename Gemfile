@@ -43,7 +43,8 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails', '~> 8.0.0'
   gem 'factory_bot_rails', '~> 6.4'
-  gem 'capybara', '~> 3.36'
+  gem 'capybara', '~> 3.40'
+  gem 'selenium-webdriver', '~> 4.52'
   gem 'timecop', '~> 0.9'
 end
 
