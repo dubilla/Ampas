@@ -435,6 +435,13 @@ CREATE INDEX index_picks_on_entry_id ON public.picks USING btree (entry_id);
 
 
 --
+-- Name: index_picks_on_entry_id_and_category_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_picks_on_entry_id_and_category_id ON public.picks USING btree (entry_id, category_id);
+
+
+--
 -- Name: index_picks_on_nominee_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -532,6 +539,7 @@ ALTER TABLE ONLY public.entries
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261115163643'),
 ('20261115163552'),
 ('20170226010635'),
 ('20170218051550'),
