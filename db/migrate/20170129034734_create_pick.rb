@@ -1,4 +1,4 @@
-class CreatePick < ActiveRecord::Migration
+class CreatePick < ActiveRecord::Migration[4.2]
   def change
     create_table :picks do |t|
       t.references :entry, foreign_key: true

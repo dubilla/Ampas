@@ -1,4 +1,4 @@
-class CreateNominees < ActiveRecord::Migration
+class CreateNominees < ActiveRecord::Migration[4.2]
   def change
     create_table :nominees do |t|
       t.text :name
