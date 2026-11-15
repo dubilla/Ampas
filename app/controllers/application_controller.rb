@@ -20,8 +20,10 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def user_not_authorized
-    redirect_back_or_to root_path, alert: "Sorry, you can't do that.", status: :see_other
+  def user_not_authorized(exception)
+    record = exception.record
+    destination = record.respond_to?(:pool) && record.pool ? pool_path(record.pool) : root_path
+    redirect_to destination, alert: "Sorry, you can't do that.", status: :see_other
   end
 
   def layout_by_resource

@@ -120,6 +120,18 @@ RSpec.describe 'Entries', type: :request do
       expect(Entry.count).to eq(0)
     end
 
+    it 'sends a double-submitted form to the pool, not back to the form' do
+      entry_for(owner)
+      sign_in_as(owner)
+      referer = { 'HTTP_REFERER' => "http://www.example.com#{new_pool_entry_path(pool)}" }
+
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }, headers: referer
+
+      expect(response).to redirect_to(pool_path(pool))
+      follow_redirect!(headers: referer)
+      expect(response).to have_http_status(:ok)
+    end
+
     it 'denies a second entry in the same pool' do
       entry_for(owner)
       sign_in_as(owner)
@@ -189,26 +201,13 @@ RSpec.describe 'Entries', type: :request do
       expect_denied
     end
 
-    it 'sends a denied user back to the referring page on this site' do
+    it "sends a denied user to the entry's pool, whatever the referer" do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      get edit_entry_path(entry), headers: { 'HTTP_REFERER' => "http://www.example.com#{pool_path(pool)}" }
+      get edit_entry_path(entry), headers: { 'HTTP_REFERER' => 'https://evil.example/' }
 
       expect(response).to redirect_to(pool_path(pool))
-    end
-
-    it 'ignores an off-site referer and shows the alert after landing on their pools' do
-      entry = entry_for(owner)
-      stranger = create(:user)
-      entry_for(stranger)
-      sign_in_as(stranger)
-
-      get edit_entry_path(entry), headers: { 'HTTP_REFERER' => 'https://evil.example/' }
-      expect(response).to redirect_to(root_path)
-
-      follow_redirect!
-      expect(response).to redirect_to(pools_path)
       follow_redirect!
       expect(response.body).to include("Sorry, you can&#39;t do that.")
     end
@@ -273,6 +272,21 @@ RSpec.describe 'Entries', type: :request do
 
       expect_denied
       expect(entry.reload.score).to eq(ceremony.categories.count)
+    end
+
+    # A browser keeps the edit page as the referer; redirecting back there would
+    # loop, because the edit page is denied too once the pool has locked.
+    it 'sends an owner who submits the edit form after lock to the pool, not back to the form' do
+      entry = entry_for(owner)
+      sign_in_as(owner)
+      referer = { 'HTTP_REFERER' => "http://www.example.com#{edit_entry_path(entry)}" }
+
+      after_lock do
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }, headers: referer
+        expect(response).to redirect_to(pool_path(pool))
+        follow_redirect!(headers: referer)
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     it 'denies the owner after lock' do
