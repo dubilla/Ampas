@@ -266,4 +266,9 @@ Devise.setup do |config|
   # When using OmniAuth, Devise cannot automatically set OmniAuth path,
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
+
+  # ==> Hotwire/Turbo configuration
+  # Turbo needs a 4xx to render a failed form and a 303 to follow a redirect.
+  config.responder.error_status = :unprocessable_content
+  config.responder.redirect_status = :see_other
 end

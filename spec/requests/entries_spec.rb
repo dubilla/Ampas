@@ -62,7 +62,7 @@ RSpec.describe 'Entries', type: :request do
         post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(_c) { nil }) } }
       }.not_to change(Entry, :count)
 
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     # CHARACTERIZATION -- #create never calls `authorize`, so a signed-in user can
