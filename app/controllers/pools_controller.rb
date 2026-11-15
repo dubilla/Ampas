@@ -8,5 +8,6 @@ class PoolsController < ApplicationController
   end
   def show
     @pool = Pool.find(params[:id])
+    @entries = @pool.entries.includes(:user, picks: :nominee)
   end
 end

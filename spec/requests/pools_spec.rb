@@ -67,6 +67,20 @@ RSpec.describe 'Pools', type: :request do
       end
     end
 
+    it 'runs the same number of queries however many entries the pool has' do
+      ceremony = create(:award_ceremony, :with_categories, category_count: 3, nominee_count: 3)
+      pool = create(:pool, award_ceremony: ceremony)
+      add_entry = -> { create(:entry, pool: pool, nominee_for: ->(category) { category.nominees.sample }) }
+      add_entry.call
+      sign_in_as(create(:user))
+
+      one_entry = count_queries { get pool_path(pool) }
+      3.times { add_entry.call }
+      four_entries = count_queries { get pool_path(pool) }
+
+      expect(four_entries).to eq(one_entry)
+    end
+
     it 'names the award ceremony' do
       ceremony = create(:award_ceremony, name: 'The 90th Academy Awards')
       pool = create(:pool, award_ceremony: ceremony)
