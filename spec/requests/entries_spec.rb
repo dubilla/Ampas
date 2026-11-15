@@ -225,6 +225,22 @@ RSpec.describe 'Entries', type: :request do
     end
   end
 
+  describe 'query counts' do
+    def queries_for_entry_pages(category_count)
+      ceremony = create(:award_ceremony, :with_categories, category_count: category_count, nominee_count: 3)
+      entry = create(:entry, pool: create(:pool, award_ceremony: ceremony), user: owner)
+      sign_in_as(owner)
+      counts = [count_queries { get entry_path(entry) }, count_queries { get edit_entry_path(entry) }]
+      Timecop.travel(ceremony.locks_at + 1.minute) { counts << count_queries { get entry_path(entry) } }
+      sign_out!
+      counts
+    end
+
+    it "doesn't grow with the number of categories on the entry, edit and locked entry pages" do
+      expect(queries_for_entry_pages(4)).to eq(queries_for_entry_pages(1))
+    end
+  end
+
   describe 'GET /entries/:id/edit' do
     it 'lets the owner edit before lock' do
       entry = entry_for(owner)
