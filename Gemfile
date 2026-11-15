@@ -42,7 +42,7 @@ gem 'jbuilder', '~> 2.0'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'devise', '~> 4.9.4'
+gem 'devise', '~> 5.0.4'
 
 
 gem 'pundit'
