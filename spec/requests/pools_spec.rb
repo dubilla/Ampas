@@ -42,6 +42,34 @@ RSpec.describe 'Pools', type: :request do
       expect(response.body).to include('2') # score: both picks won
     end
 
+    describe 'the Join Pool link' do
+      let(:pool) { create(:pool) }
+
+      it 'is hidden once the user has entered' do
+        user = create(:user)
+        create(:entry, pool: pool, user: user)
+
+        sign_in_as(user)
+        get pool_path(pool)
+
+        expect(response.body).not_to include(new_pool_entry_path(pool))
+      end
+
+      it 'is hidden after the pool locks' do
+        sign_in_as(create(:user))
+
+        Timecop.travel(pool.locks_at + 1.minute) do
+          get pool_path(pool)
+          expect(response.body).not_to include(new_pool_entry_path(pool))
+        end
+      end
+
+      it 'is shown to a signed-out visitor before lock' do
+        get pool_path(pool)
+        expect(response.body).to include(new_pool_entry_path(pool))
+      end
+    end
+
     # CHARACTERIZATION: the page heading is the literal string "Pool" -- it never
     # names the ceremony, even though Pool#award_ceremony_name exists for it.
     # TODO: show the ceremony name here.

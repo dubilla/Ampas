@@ -9,6 +9,7 @@ class EntriesController < ApplicationController
         user: current_user
       }
     )
+    authorize @entry
   end
 
   def edit
@@ -34,6 +35,7 @@ class EntriesController < ApplicationController
     @entry = Entry.new(entry_params)
     @entry.pool = pool
     @entry.user = current_user
+    authorize @entry
     if @entry.save
       redirect_to @entry
     else

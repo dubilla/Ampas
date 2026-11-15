@@ -33,6 +33,33 @@ RSpec.describe EntryPolicy do
     end
   end
 
+  describe '#create?' do
+    let(:pool) { create(:pool, award_ceremony: ceremony) }
+    let(:new_entry) { Entry.new(pool: pool, user: owner) }
+
+    it 'allows a user with no entry in the pool before lock' do
+      expect(described_class.new(owner, new_entry).create?).to be(true)
+    end
+
+    it 'denies after lock' do
+      after_lock { expect(described_class.new(owner, new_entry).create?).to be(false) }
+    end
+
+    it 'denies a user who already has an entry in the pool' do
+      create(:entry, pool: pool, user: owner)
+      expect(described_class.new(owner, new_entry).create?).to be(false)
+    end
+
+    it 'allows an entry in a different pool' do
+      create(:entry, user: owner)
+      expect(described_class.new(owner, new_entry).create?).to be(true)
+    end
+
+    it 'denies a signed-out visitor' do
+      expect(described_class.new(nil, new_entry).create?).to be(false)
+    end
+  end
+
   describe '#update?' do
     it 'allows the owner before lock' do
       expect(described_class.new(owner, entry).update?).to be(true)

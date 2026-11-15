@@ -7,6 +7,7 @@ class Entry < ApplicationRecord
   has_many :picks, -> { order(:created_at) }, dependent: :destroy, inverse_of: :entry
   accepts_nested_attributes_for :picks
   validates_associated :picks
+  validates :user_id, uniqueness: { scope: :pool_id, message: 'already has an entry in this pool' }
 
   delegate :award_ceremony, to: :pool
   delegate :email, to: :user

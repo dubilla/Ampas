@@ -16,6 +16,23 @@ RSpec.describe Entry do
     entry.reload
   end
 
+  describe 'validations' do
+    it 'allows only one entry per user per pool' do
+      existing = create(:entry)
+      duplicate = build(:entry, pool: existing.pool, user: existing.user)
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:user_id]).to include('already has an entry in this pool')
+    end
+
+    it 'is backed by a unique index' do
+      existing = create(:entry)
+      duplicate = build(:entry, pool: existing.pool, user: existing.user)
+
+      expect { duplicate.save(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+  end
+
   describe '#score' do
     it 'counts picks landing on a winning nominee' do
       expect(entry_with_picks(winning: 2, categories: 3).score).to eq(2)
