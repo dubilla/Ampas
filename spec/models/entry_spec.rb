@@ -30,7 +30,7 @@ RSpec.describe Entry do
       entry.picks.build(category: category, nominee: category.nominees.first)
 
       expect(entry).not_to be_valid
-      expect(entry.errors[:picks]).to include('must include one for every category')
+      expect(entry.errors[:base]).to include('Pick a nominee in every category')
     end
 
     it 'is backed by a unique index' do

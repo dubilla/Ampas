@@ -41,7 +41,7 @@ class Entry < ApplicationRecord
     return unless pool
     picked = picks.reject(&:marked_for_destruction?).map(&:category_id)
     if (pool.categories.ids - picked).any?
-      errors.add(:picks, 'must include one for every category')
+      errors.add(:base, 'Pick a nominee in every category')
     end
   end
 end

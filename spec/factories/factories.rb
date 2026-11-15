@@ -53,7 +53,7 @@ FactoryBot.define do
     end
 
     after(:build) do |entry, evaluator|
-      next if entry.picks.any?
+      next if entry.pool.nil? || entry.picks.any?
       entry.pool.categories.each do |category|
         entry.picks.build(category: category, nominee: evaluator.nominee_for.call(category))
       end

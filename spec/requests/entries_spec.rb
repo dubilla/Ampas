@@ -73,14 +73,18 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to redirect_to(entry_path(entry))
     end
 
-    it 're-renders the form when a pick has no nominee' do
+    it 're-renders the form naming each category that has no nominee' do
       sign_in_as(owner)
+      first, second = ceremony.categories.to_a
 
       expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(_c) { nil }) } }
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c == first ? nil : c.nominees.first.id }) } }
       }.not_to change(Entry, :count)
 
       expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("<li>#{first.name}: nominee is missing</li>")
+      expect(response.body).not_to include("#{second.name}: ")
+      expect(response.body).not_to include('Picks is invalid')
     end
 
     it 'rejects a nominee from a different category' do
@@ -115,7 +119,7 @@ RSpec.describe 'Entries', type: :request do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
       }.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include('Picks must include one for every category')
+      expect(response.body).to include('Pick a nominee in every category')
       # The re-rendered form keeps the submitted pick and offers the skipped category.
       ceremony.categories.each { |c| expect(response.body).to include(c.name) }
       expect(response.body).to match(/value="#{category.nominees.first.id}" checked="checked"/)
@@ -130,7 +134,7 @@ RSpec.describe 'Entries', type: :request do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
       }.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include('Picks category must exist')
+      expect(response.body).to include('Some picks are for categories outside this ceremony')
       expect(response.body.scan(/<li class="category">/).size).to eq(ceremony.categories.count)
     end
 
@@ -316,6 +320,17 @@ RSpec.describe 'Entries', type: :request do
       patch entry_path(entry), params: { entry: { picks_attributes: swapped } }
 
       expect(entry.picks.map { |pick| pick.reload.category_id }).to eq([first.category_id, second.category_id])
+    end
+
+    it 're-renders the edit form with the error when a nominee is cleared' do
+      entry = entry_for(owner)
+      sign_in_as(owner)
+      pick = entry.picks.first
+
+      patch entry_path(entry), params: { entry: { picks_attributes: { '0' => { id: pick.id, nominee_id: '' } } } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("<li>#{pick.category.name}: nominee is missing</li>")
     end
 
     it 'requires authentication' do
