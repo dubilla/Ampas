@@ -1,7 +1,7 @@
 class PoolsController < ApplicationController
   def index
     if current_user.present?
-      @pools = current_user.pools
+      @pools = current_user.pools.includes(:award_ceremony)
     else
       redirect_to root_path
     end
