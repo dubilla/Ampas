@@ -17,6 +17,11 @@ RSpec.describe 'Entries', type: :request do
     Timecop.travel(ceremony.locks_at + 1.minute) { yield }
   end
 
+  def expect_denied
+    expect(response).to have_http_status(:see_other)
+    expect(flash[:alert]).to eq("Sorry, you can't do that.")
+  end
+
   describe 'GET /pools/:pool_id/entries/new' do
     it 'requires authentication' do
       get new_pool_entry_path(pool)
@@ -36,14 +41,18 @@ RSpec.describe 'Entries', type: :request do
     it 'denies the form after the pool has locked' do
       sign_in_as(owner)
 
-      after_lock { expect { get new_pool_entry_path(pool) }.to raise_error(Pundit::NotAuthorizedError) }
+      after_lock { get new_pool_entry_path(pool) }
+
+      expect_denied
     end
 
     it 'denies the form to a user who already has an entry in the pool' do
       entry_for(owner)
       sign_in_as(owner)
 
-      expect { get new_pool_entry_path(pool) }.to raise_error(Pundit::NotAuthorizedError)
+      get new_pool_entry_path(pool)
+
+      expect_denied
     end
   end
 
@@ -104,10 +113,10 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       after_lock do
-        expect {
-          post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
-        }.to raise_error(Pundit::NotAuthorizedError)
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
       end
+
+      expect_denied
       expect(Entry.count).to eq(0)
     end
 
@@ -115,9 +124,9 @@ RSpec.describe 'Entries', type: :request do
       entry_for(owner)
       sign_in_as(owner)
 
-      expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
-      }.to raise_error(Pundit::NotAuthorizedError)
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+
+      expect_denied
       expect(owner.entries.count).to eq(1)
     end
   end
@@ -136,7 +145,9 @@ RSpec.describe 'Entries', type: :request do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      expect { get entry_path(entry) }.to raise_error(Pundit::NotAuthorizedError)
+      get entry_path(entry)
+
+      expect_denied
     end
 
     it 'opens the entry to everyone once the pool locks' do
@@ -164,14 +175,42 @@ RSpec.describe 'Entries', type: :request do
       entry = entry_for(owner)
       sign_in_as(owner)
 
-      after_lock { expect { get edit_entry_path(entry) }.to raise_error(Pundit::NotAuthorizedError) }
+      after_lock { get edit_entry_path(entry) }
+
+      expect_denied
     end
 
     it 'denies a stranger' do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      expect { get edit_entry_path(entry) }.to raise_error(Pundit::NotAuthorizedError)
+      get edit_entry_path(entry)
+
+      expect_denied
+    end
+
+    it 'sends a denied user back to the referring page on this site' do
+      entry = entry_for(owner)
+      sign_in_as(create(:user))
+
+      get edit_entry_path(entry), headers: { 'HTTP_REFERER' => "http://www.example.com#{pool_path(pool)}" }
+
+      expect(response).to redirect_to(pool_path(pool))
+    end
+
+    it 'ignores an off-site referer and shows the alert after landing on their pools' do
+      entry = entry_for(owner)
+      stranger = create(:user)
+      entry_for(stranger)
+      sign_in_as(stranger)
+
+      get edit_entry_path(entry), headers: { 'HTTP_REFERER' => 'https://evil.example/' }
+      expect(response).to redirect_to(root_path)
+
+      follow_redirect!
+      expect(response).to redirect_to(pools_path)
+      follow_redirect!
+      expect(response.body).to include("Sorry, you can&#39;t do that.")
     end
   end
 
@@ -230,9 +269,9 @@ RSpec.describe 'Entries', type: :request do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      expect {
-        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
-      }.to raise_error(Pundit::NotAuthorizedError)
+      patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
+
+      expect_denied
       expect(entry.reload.score).to eq(ceremony.categories.count)
     end
 
@@ -241,9 +280,9 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       after_lock do
-        expect {
-          patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
-        }.to raise_error(Pundit::NotAuthorizedError)
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
+
+        expect_denied
         expect(entry.reload.score).to eq(ceremony.categories.count)
       end
     end
