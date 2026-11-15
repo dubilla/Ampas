@@ -18,8 +18,6 @@ gem 'pg'
 gem 'nokogiri', '>= 1.19.3'
 gem 'puma', '~> 8.0'
 
-# Use SCSS for stylesheets
-gem 'sassc-rails', '~> 2.1'
 # Uglifier can't parse ES6.
 gem 'terser', '~> 1.2'
 # See https://github.com/rails/execjs#readme for more supported runtimes
