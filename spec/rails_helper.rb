@@ -26,6 +26,10 @@ Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
 
+# Rails 8 loads routes lazily in test, and the first Devise sign-in of a run
+# fails unless they are loaded before that request.
+Rails.application.reload_routes_unless_loaded
+
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 
