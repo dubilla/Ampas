@@ -51,8 +51,12 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 Use the provided setup script:
 
 ```bash
-bin/setup
+bin/setup                 # install gems, create or migrate the database, seed it, start bin/dev
+bin/setup --skip-server   # the same, without starting the server
+bin/setup --reset         # drop and rebuild the database from structure.sql, then seed
 ```
+
+It is safe to rerun at any time.
 
 Manual setup:
 
@@ -91,7 +95,15 @@ player@example.com   / password   -- has a scored entry
 newcomer@example.com / password   -- has no entry
 ```
 
-  Run it with `bundle exec rake db:seed`. It is idempotent.
+  Seeds only add what's missing, so `bin/rails db:seed` is safe to rerun. Each run also moves the
+  ceremony's lock time to a week from now, which reopens a locked pool.
+
+- To throw away local changes and start from the seed data again:
+
+```bash
+bin/rails db:seed:replant   # empty every table, then seed
+bin/setup --reset           # drop and rebuild the whole database, then seed
+```
 
 ## Testing
 
