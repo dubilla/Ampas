@@ -22,9 +22,9 @@ class EntriesController < ApplicationController
   end
 
   def update
-    @entry = Entry.find(params[:id])
-    if @entry.update(entry_params)
-      redirect_to @entry
+    authorize entry
+    if entry.update(entry_params)
+      redirect_to entry
     else
       render 'edit'
     end

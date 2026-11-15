@@ -64,6 +64,20 @@ RSpec.describe 'Entries', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    # CHARACTERIZATION -- #create never calls `authorize`, so a signed-in user can
+    # still submit a new entry after the pool locks, when winners may be known.
+    # TODO: add EntryPolicy#create? (not locked), authorize in #new/#create, and
+    # flip this to expect Pundit::NotAuthorizedError.
+    it 'allows a new entry after the pool has locked' do
+      sign_in_as(owner)
+
+      after_lock do
+        expect {
+          post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+        }.to change(Entry, :count).by(1)
+      end
+    end
   end
 
   describe 'GET /entries/:id' do
@@ -145,31 +159,25 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    # CHARACTERIZATION -- this records a real authorization hole, not desired behavior.
-    #
-    # EntriesController#update never calls `authorize`, unlike #show and #edit. Any
-    # authenticated user can therefore rewrite any other user's picks, including
-    # after the pool has locked.
-    #
-    # TODO: add `authorize entry` to #update and flip these two
-    # examples to expect Pundit::NotAuthorizedError.
-    it "allows any signed-in user to rewrite another user's picks" do
+    it "denies a stranger and leaves the owner's picks alone" do
       entry = entry_for(owner)
       sign_in_as(create(:user))
 
-      patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
-
-      expect(response).to redirect_to(entry_path(entry))
-      expect(entry.reload.score).to eq(0)
+      expect {
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
+      }.to raise_error(Pundit::NotAuthorizedError)
+      expect(entry.reload.score).to eq(ceremony.categories.count)
     end
 
-    it 'allows edits after the pool has locked' do
+    it 'denies the owner after lock' do
       entry = entry_for(owner)
       sign_in_as(owner)
 
       after_lock do
-        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
-        expect(entry.reload.score).to eq(0)
+        expect {
+          patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }
+        }.to raise_error(Pundit::NotAuthorizedError)
+        expect(entry.reload.score).to eq(ceremony.categories.count)
       end
     end
   end

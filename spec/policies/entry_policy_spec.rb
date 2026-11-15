@@ -33,6 +33,20 @@ RSpec.describe EntryPolicy do
     end
   end
 
+  describe '#update?' do
+    it 'allows the owner before lock' do
+      expect(described_class.new(owner, entry).update?).to be(true)
+    end
+
+    it 'denies the owner after lock' do
+      after_lock { expect(described_class.new(owner, entry).update?).to be(false) }
+    end
+
+    it 'denies a stranger' do
+      expect(described_class.new(stranger, entry).update?).to be(false)
+    end
+  end
+
   describe '#edit?' do
     it 'allows the owner before lock' do
       expect(described_class.new(owner, entry).edit?).to be(true)
@@ -46,7 +60,7 @@ RSpec.describe EntryPolicy do
       expect(described_class.new(stranger, entry).edit?).to be(false)
     end
 
-    # CHARACTERIZATION: #edit? has no nil guard, unlike #show?. It raises rather
+    # CHARACTERIZATION: #update? (and so #edit?) has no nil guard, unlike #show?. It raises rather
     # than returning false. Harmless today because EntriesController requires
     # authentication before authorizing, so `user` is never nil in practice.
     # TODO: add a nil guard for symmetry with #show?.
