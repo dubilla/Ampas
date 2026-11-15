@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '3.3.13'
+ruby '3.4.12'
 
 rails_version = '8.0.5.2'
 gem 'actionmailer', rails_version
