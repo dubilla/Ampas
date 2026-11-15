@@ -116,7 +116,6 @@ The `test/` directory is stock Rails scaffolding and contains no tests.
 ## Code quality
 
 - RuboCop: `bundle exec rubocop`
-- Rails Best Practices: `bundle exec rails_best_practices .`
 
 ## Configuration and secrets
 
