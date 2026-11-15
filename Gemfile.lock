@@ -1,19 +1,20 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (7.1.5.1)
-      actionpack (= 7.1.5.1)
-      actionview (= 7.1.5.1)
-      activejob (= 7.1.5.1)
-      activesupport (= 7.1.5.1)
+    actionmailer (7.1.6)
+      actionpack (= 7.1.6)
+      actionview (= 7.1.6)
+      activejob (= 7.1.6)
+      activesupport (= 7.1.6)
       mail (~> 2.5, >= 2.5.4)
       net-imap
       net-pop
       net-smtp
       rails-dom-testing (~> 2.2)
-    actionpack (7.1.5.1)
-      actionview (= 7.1.5.1)
-      activesupport (= 7.1.5.1)
+    actionpack (7.1.6)
+      actionview (= 7.1.6)
+      activesupport (= 7.1.6)
+      cgi
       nokogiri (>= 1.8.5)
       racc
       rack (>= 2.2.4)
@@ -21,22 +22,23 @@ GEM
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    actionview (7.1.5.1)
-      activesupport (= 7.1.5.1)
+    actionview (7.1.6)
+      activesupport (= 7.1.6)
       builder (~> 3.1)
+      cgi
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activejob (7.1.5.1)
-      activesupport (= 7.1.5.1)
+    activejob (7.1.6)
+      activesupport (= 7.1.6)
       globalid (>= 0.3.6)
-    activemodel (7.1.5.1)
-      activesupport (= 7.1.5.1)
-    activerecord (7.1.5.1)
-      activemodel (= 7.1.5.1)
-      activesupport (= 7.1.5.1)
+    activemodel (7.1.6)
+      activesupport (= 7.1.6)
+    activerecord (7.1.6)
+      activemodel (= 7.1.6)
+      activesupport (= 7.1.6)
       timeout (>= 0.4.0)
-    activesupport (7.1.5.1)
+    activesupport (7.1.6)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -183,13 +185,15 @@ GEM
     rails-html-sanitizer (1.7.1)
       loofah (~> 2.25, >= 2.25.2)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (7.1.5.1)
-      actionpack (= 7.1.5.1)
-      activesupport (= 7.1.5.1)
+    railties (7.1.6)
+      actionpack (= 7.1.6)
+      activesupport (= 7.1.6)
+      cgi
       irb
       rackup (>= 1.0.0)
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
+      tsort (>= 0.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.4.2)
@@ -281,13 +285,13 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  actionmailer (= 7.1.5.1)
-  actionpack (= 7.1.5.1)
-  actionview (= 7.1.5.1)
-  activejob (= 7.1.5.1)
-  activemodel (= 7.1.5.1)
-  activerecord (= 7.1.5.1)
-  activesupport (= 7.1.5.1)
+  actionmailer (= 7.1.6)
+  actionpack (= 7.1.6)
+  actionview (= 7.1.6)
+  activejob (= 7.1.6)
+  activemodel (= 7.1.6)
+  activerecord (= 7.1.6)
+  activesupport (= 7.1.6)
   byebug
   capybara (~> 3.36)
   devise (~> 4.9.4)
@@ -300,7 +304,7 @@ DEPENDENCIES
   pry-byebug
   puma (~> 6.4)
   pundit
-  railties (= 7.1.5.1)
+  railties (= 7.1.6)
   rspec-rails (~> 6.1)
   rubocop
   sassc-rails (~> 2.1)
