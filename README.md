@@ -33,7 +33,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Tech stack
 
-- Rails 8.0
+- Rails 8.1
 - PostgreSQL
 - Devise, Pundit
 - Propshaft, importmap-rails, Turbo
