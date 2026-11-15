@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '3.3.13'
 
-rails_version = '7.2.4'
+rails_version = '8.0.5.2'
 gem 'actionmailer', rails_version
 gem 'actionpack', rails_version
 gem 'actionview', rails_version
@@ -50,7 +50,7 @@ gem 'pundit'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  gem 'rspec-rails', '~> 6.1'
+  gem 'rspec-rails', '~> 8.0.0'
   gem 'factory_bot_rails', '~> 6.4'
   gem 'capybara', '~> 3.36'
   gem 'timecop', '~> 0.9'
