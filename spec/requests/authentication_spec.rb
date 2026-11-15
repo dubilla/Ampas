@@ -54,6 +54,26 @@ RSpec.describe 'Authentication', type: :request do
 
       expect(response).to redirect_to('http://www.example.com/')
     end
+
+    it 'returns to a local redirect_to path' do
+      get '/users/sign_in', params: { redirect_to: '/pools' }
+      sign_in_as(user)
+
+      expect(response).to redirect_to('http://www.example.com/pools')
+    end
+
+    ['@evil.com', '.evil.com', 'pools/1', '//evil.com', '/\\evil.com', 'https://evil.com/pools'].each do |target|
+      it "ignores a non-local redirect_to of #{target.inspect} and can still sign in" do
+        get '/users/sign_in', params: { redirect_to: target }
+        sign_in_as(user)
+        expect(response).to redirect_to('http://www.example.com/')
+
+        sign_out!
+        get '/users/sign_in'
+        sign_in_as(user)
+        expect(response).to redirect_to('http://www.example.com/')
+      end
+    end
   end
 
   describe 'layouts' do
