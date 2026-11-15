@@ -15,6 +15,7 @@ RSpec.describe 'Authentication', type: :request do
       user = create(:user, password: 'password')
       sign_in_as(user, password: 'wrong')
 
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).not_to include('>Logout</a>')
     end
   end
@@ -22,6 +23,7 @@ RSpec.describe 'Authentication', type: :request do
   it 'signs out' do
     sign_in_as(create(:user))
     sign_out!
+    expect(response).to have_http_status(:see_other)
     follow_redirect!
 
     expect(response.body).to include('>Log in</a>')

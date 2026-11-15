@@ -26,7 +26,7 @@ class EntriesController < ApplicationController
     if entry.update(entry_params)
       redirect_to entry
     else
-      render 'edit'
+      render 'edit', status: :unprocessable_content
     end
   end
 
@@ -37,7 +37,7 @@ class EntriesController < ApplicationController
     if @entry.save
       redirect_to @entry
     else
-      render 'new'
+      render 'new', status: :unprocessable_content
     end
   end
 
