@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
   def after_sign_in_path_for(resource)
     sign_in_url = new_user_session_url
     if request.referer == sign_in_url
@@ -17,6 +19,10 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def user_not_authorized
+    redirect_back_or_to root_path, alert: "Sorry, you can't do that.", status: :see_other
+  end
 
   def layout_by_resource
     if devise_controller?
