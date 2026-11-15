@@ -16,7 +16,7 @@ gem 'sprockets-rails', '~> 3.5'
 gem 'pg'
 # 1.19.3 fixes GHSA-c4rq-3m3g-8wgx.
 gem 'nokogiri', '>= 1.19.3'
-gem 'puma', '~> 6.4'
+gem 'puma', '~> 8.0'
 
 # Use SCSS for stylesheets
 gem 'sassc-rails', '~> 2.1'
