@@ -13,9 +13,9 @@ RSpec.describe 'Turbo navigation', type: :system do
     end
   end
 
-  def sign_in(password: 'password')
+  def sign_in(as: user, password: 'password')
     visit new_user_session_path
-    fill_in 'Email', with: user.email
+    fill_in 'Email', with: as.email
     fill_in 'Password', with: password
     click_button 'Log in'
   end
@@ -36,6 +36,22 @@ RSpec.describe 'Turbo navigation', type: :system do
     click_link 'Logout'
     expect(page).to have_link('Log in')
     expect(page).to have_no_link('Logout')
+  end
+
+  # Uses a user without entries: destroying one with entries raises
+  # ActiveRecord::InvalidForeignKey today (User has no dependent: on entries).
+  it 'asks for confirmation before cancelling an account' do
+    loner = create(:user)
+    sign_in(as: loner)
+    expect(page).to have_link('Logout')
+    visit edit_user_registration_path
+
+    dismiss_confirm('Are you sure?') { click_button 'Cancel my account' }
+    expect(User.exists?(loner.id)).to be(true)
+
+    accept_confirm('Are you sure?') { click_button 'Cancel my account' }
+    expect(page).to have_link('Log in')
+    expect(User.exists?(loner.id)).to be(false)
   end
 
   it 're-renders the sign-in form after a failed sign-in' do
