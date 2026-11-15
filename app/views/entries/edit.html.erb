@@ -2,6 +2,7 @@
   <h2>Entry</h2>
   <h3><%= @entry.award_ceremony_name %></h3>
   <h3><%= @entry.email %></h3>
+  <%= render 'errors', entry: @entry, picks: @entry.picks %>
 
   <%= form_for(@entry) do |f| %>
     <fieldset>

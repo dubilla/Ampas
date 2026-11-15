@@ -52,11 +52,13 @@ class EntriesController < ApplicationController
     @pool ||= Pool.find(params[:pool_id])
   end
 
-  # One row per category on the ceremony, keeping whatever was submitted for it.
-  # Picks for categories outside the ceremony are left off the form.
   def picks_for_form
     submitted = @entry.picks.index_by(&:category_id)
-    pool.categories.map { |category| submitted[category.id] || @entry.picks.build(category: category) }
+    pool.categories.includes(:nominees).map do |category|
+      pick = submitted[category.id] || @entry.picks.build
+      pick.category = category
+      pick
+    end
   end
 
   def create_params

@@ -2,17 +2,11 @@
   <h2>Entry</h2>
   <h3><%= @entry.award_ceremony_name %></h3>
   <h3><%= @entry.email %></h3>
-  <% if @entry.errors.any? %>
-    <ul class="errors">
-      <% @entry.errors.full_messages.uniq.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  <% end %>
+  <%= render 'errors', entry: @entry, picks: @picks %>
   <%= form_for(@entry, url: pool_entries_path) do |f| %>
     <fieldset>
       <ul class="entry">
-        <%= f.fields_for :picks, @picks, hidden_field_id: true do |pf| %>
+        <%= f.fields_for :picks, @picks do |pf| %>
           <li class="category">
             <%= pf.hidden_field :category_id %>
             <div><%= pf.object.category.name %></div>

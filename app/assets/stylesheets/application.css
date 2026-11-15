@@ -324,3 +324,7 @@ dl dd {
 .entry-score-footer {
   float: right;
 }
+
+.errors {
+  color: #b3261e;
+}
