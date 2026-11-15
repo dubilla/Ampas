@@ -3,8 +3,6 @@
 ## Modernization and maintenance
 - Upgrade to Rails 8.1 and Ruby 3.4.
 - Update gems (Devise, Pundit, Bourbon/Neat, etc.) and remove deprecated ones (e.g., CoffeeScript if introduced later).
-- Replace jQuery/Turbolinks with Hotwire (Turbo + Stimulus) or a modern frontend approach.
-- Consider using import maps or a modern bundler instead of legacy Sprockets where appropriate.
 - Add linting and security checks (bundler-audit, brakeman) to CI.
 
 ## Data integrity and validations

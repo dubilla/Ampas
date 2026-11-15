@@ -9,8 +9,8 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 - Categories and nominees; winners tracked per nominee
 - Scoring and ranking once winners are set
 - Authentication with Devise; authorization with Pundit
-- Clean, responsive UI via Bourbon, Neat, and Bitters
-- Asset Pipeline with Sprockets, jQuery, and Turbolinks
+- Plain CSS (compiled from Bourbon, Neat, and Bitters)
+- Propshaft, import maps, and Turbo
 
 ## Architecture overview
 
@@ -36,8 +36,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 - Rails 7.1.5.1
 - PostgreSQL
 - Devise, Pundit
-- Sprockets, jQuery, Turbolinks
-- Bourbon/Neat/Bitters (SCSS)
+- Propshaft, importmap-rails, Turbo
 - RSpec
 
 ## Requirements
@@ -45,7 +44,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 - Ruby 3.3.13, via rbenv (`.ruby-version`)
 - PostgreSQL
 - Bundler 2.x
-- Node.js (for assets)
+- Chrome (for the system specs)
 
 ## Getting started
 
