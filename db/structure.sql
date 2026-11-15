@@ -1,44 +1,35 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 10.1
--- Dumped by pg_dump version 10.1
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
-SET search_path = public, pg_catalog;
-
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
+
+--
+-- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ar_internal_metadata (
+    key character varying NOT NULL,
+    value character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
 
 --
 -- Name: award_ceremonies; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE award_ceremonies (
+CREATE TABLE public.award_ceremonies (
     id integer NOT NULL,
     name text,
     created_at timestamp without time zone NOT NULL,
@@ -51,7 +42,7 @@ CREATE TABLE award_ceremonies (
 -- Name: award_ceremonies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE award_ceremonies_id_seq
+CREATE SEQUENCE public.award_ceremonies_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -64,14 +55,14 @@ CREATE SEQUENCE award_ceremonies_id_seq
 -- Name: award_ceremonies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE award_ceremonies_id_seq OWNED BY award_ceremonies.id;
+ALTER SEQUENCE public.award_ceremonies_id_seq OWNED BY public.award_ceremonies.id;
 
 
 --
 -- Name: categories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE categories (
+CREATE TABLE public.categories (
     id integer NOT NULL,
     name text,
     award_ceremony_id integer,
@@ -84,7 +75,7 @@ CREATE TABLE categories (
 -- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE categories_id_seq
+CREATE SEQUENCE public.categories_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -97,14 +88,14 @@ CREATE SEQUENCE categories_id_seq
 -- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE categories_id_seq OWNED BY categories.id;
+ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
 
 --
 -- Name: entries; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE entries (
+CREATE TABLE public.entries (
     id integer NOT NULL,
     pool_id integer,
     user_id integer,
@@ -117,7 +108,7 @@ CREATE TABLE entries (
 -- Name: entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE entries_id_seq
+CREATE SEQUENCE public.entries_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -130,14 +121,14 @@ CREATE SEQUENCE entries_id_seq
 -- Name: entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE entries_id_seq OWNED BY entries.id;
+ALTER SEQUENCE public.entries_id_seq OWNED BY public.entries.id;
 
 
 --
 -- Name: nominees; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE nominees (
+CREATE TABLE public.nominees (
     id integer NOT NULL,
     name text,
     category_id integer,
@@ -149,7 +140,7 @@ CREATE TABLE nominees (
 -- Name: nominees_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE nominees_id_seq
+CREATE SEQUENCE public.nominees_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -162,14 +153,14 @@ CREATE SEQUENCE nominees_id_seq
 -- Name: nominees_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE nominees_id_seq OWNED BY nominees.id;
+ALTER SEQUENCE public.nominees_id_seq OWNED BY public.nominees.id;
 
 
 --
 -- Name: picks; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE picks (
+CREATE TABLE public.picks (
     id integer NOT NULL,
     entry_id integer,
     nominee_id integer,
@@ -183,7 +174,7 @@ CREATE TABLE picks (
 -- Name: picks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE picks_id_seq
+CREATE SEQUENCE public.picks_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -196,14 +187,14 @@ CREATE SEQUENCE picks_id_seq
 -- Name: picks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE picks_id_seq OWNED BY picks.id;
+ALTER SEQUENCE public.picks_id_seq OWNED BY public.picks.id;
 
 
 --
 -- Name: pools; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pools (
+CREATE TABLE public.pools (
     id integer NOT NULL,
     award_ceremony_id integer,
     created_at timestamp without time zone NOT NULL,
@@ -215,7 +206,7 @@ CREATE TABLE pools (
 -- Name: pools_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pools_id_seq
+CREATE SEQUENCE public.pools_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -228,14 +219,14 @@ CREATE SEQUENCE pools_id_seq
 -- Name: pools_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pools_id_seq OWNED BY pools.id;
+ALTER SEQUENCE public.pools_id_seq OWNED BY public.pools.id;
 
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE schema_migrations (
+CREATE TABLE public.schema_migrations (
     version character varying NOT NULL
 );
 
@@ -244,7 +235,7 @@ CREATE TABLE schema_migrations (
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE users (
+CREATE TABLE public.users (
     id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -265,7 +256,7 @@ CREATE TABLE users (
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE users_id_seq
+CREATE SEQUENCE public.users_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -278,63 +269,71 @@ CREATE SEQUENCE users_id_seq
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE users_id_seq OWNED BY users.id;
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
 -- Name: award_ceremonies id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY award_ceremonies ALTER COLUMN id SET DEFAULT nextval('award_ceremonies_id_seq'::regclass);
+ALTER TABLE ONLY public.award_ceremonies ALTER COLUMN id SET DEFAULT nextval('public.award_ceremonies_id_seq'::regclass);
 
 
 --
 -- Name: categories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY categories ALTER COLUMN id SET DEFAULT nextval('categories_id_seq'::regclass);
+ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
 
 
 --
 -- Name: entries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY entries ALTER COLUMN id SET DEFAULT nextval('entries_id_seq'::regclass);
+ALTER TABLE ONLY public.entries ALTER COLUMN id SET DEFAULT nextval('public.entries_id_seq'::regclass);
 
 
 --
 -- Name: nominees id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nominees ALTER COLUMN id SET DEFAULT nextval('nominees_id_seq'::regclass);
+ALTER TABLE ONLY public.nominees ALTER COLUMN id SET DEFAULT nextval('public.nominees_id_seq'::regclass);
 
 
 --
 -- Name: picks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY picks ALTER COLUMN id SET DEFAULT nextval('picks_id_seq'::regclass);
+ALTER TABLE ONLY public.picks ALTER COLUMN id SET DEFAULT nextval('public.picks_id_seq'::regclass);
 
 
 --
 -- Name: pools id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pools ALTER COLUMN id SET DEFAULT nextval('pools_id_seq'::regclass);
+ALTER TABLE ONLY public.pools ALTER COLUMN id SET DEFAULT nextval('public.pools_id_seq'::regclass);
 
 
 --
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
 -- Name: award_ceremonies award_ceremonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY award_ceremonies
+ALTER TABLE ONLY public.award_ceremonies
     ADD CONSTRAINT award_ceremonies_pkey PRIMARY KEY (id);
 
 
@@ -342,7 +341,7 @@ ALTER TABLE ONLY award_ceremonies
 -- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY categories
+ALTER TABLE ONLY public.categories
     ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
 
 
@@ -350,7 +349,7 @@ ALTER TABLE ONLY categories
 -- Name: entries entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY entries
+ALTER TABLE ONLY public.entries
     ADD CONSTRAINT entries_pkey PRIMARY KEY (id);
 
 
@@ -358,7 +357,7 @@ ALTER TABLE ONLY entries
 -- Name: nominees nominees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nominees
+ALTER TABLE ONLY public.nominees
     ADD CONSTRAINT nominees_pkey PRIMARY KEY (id);
 
 
@@ -366,7 +365,7 @@ ALTER TABLE ONLY nominees
 -- Name: picks picks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY picks
+ALTER TABLE ONLY public.picks
     ADD CONSTRAINT picks_pkey PRIMARY KEY (id);
 
 
@@ -374,7 +373,7 @@ ALTER TABLE ONLY picks
 -- Name: pools pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pools
+ALTER TABLE ONLY public.pools
     ADD CONSTRAINT pools_pkey PRIMARY KEY (id);
 
 
@@ -382,7 +381,7 @@ ALTER TABLE ONLY pools
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY users
+ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
@@ -390,133 +389,133 @@ ALTER TABLE ONLY users
 -- Name: index_categories_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_categories_on_award_ceremony_id ON categories USING btree (award_ceremony_id);
+CREATE INDEX index_categories_on_award_ceremony_id ON public.categories USING btree (award_ceremony_id);
 
 
 --
 -- Name: index_entries_on_pool_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_entries_on_pool_id ON entries USING btree (pool_id);
+CREATE INDEX index_entries_on_pool_id ON public.entries USING btree (pool_id);
 
 
 --
 -- Name: index_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_entries_on_user_id ON entries USING btree (user_id);
+CREATE INDEX index_entries_on_user_id ON public.entries USING btree (user_id);
 
 
 --
 -- Name: index_nominees_on_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_nominees_on_category_id ON nominees USING btree (category_id);
+CREATE INDEX index_nominees_on_category_id ON public.nominees USING btree (category_id);
 
 
 --
 -- Name: index_picks_on_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_picks_on_category_id ON picks USING btree (category_id);
+CREATE INDEX index_picks_on_category_id ON public.picks USING btree (category_id);
 
 
 --
 -- Name: index_picks_on_entry_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_picks_on_entry_id ON picks USING btree (entry_id);
+CREATE INDEX index_picks_on_entry_id ON public.picks USING btree (entry_id);
 
 
 --
 -- Name: index_picks_on_nominee_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_picks_on_nominee_id ON picks USING btree (nominee_id);
+CREATE INDEX index_picks_on_nominee_id ON public.picks USING btree (nominee_id);
 
 
 --
 -- Name: index_pools_on_award_ceremony_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_pools_on_award_ceremony_id ON pools USING btree (award_ceremony_id);
+CREATE INDEX index_pools_on_award_ceremony_id ON public.pools USING btree (award_ceremony_id);
 
 
 --
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
+CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 
 --
 -- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (reset_password_token);
+CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
 
 
 --
 -- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
+CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING btree (version);
 
 
 --
 -- Name: nominees fk_rails_3295d19bd4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nominees
-    ADD CONSTRAINT fk_rails_3295d19bd4 FOREIGN KEY (category_id) REFERENCES categories(id);
+ALTER TABLE ONLY public.nominees
+    ADD CONSTRAINT fk_rails_3295d19bd4 FOREIGN KEY (category_id) REFERENCES public.categories(id);
 
 
 --
 -- Name: picks fk_rails_42358aa0a9; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY picks
-    ADD CONSTRAINT fk_rails_42358aa0a9 FOREIGN KEY (entry_id) REFERENCES entries(id);
+ALTER TABLE ONLY public.picks
+    ADD CONSTRAINT fk_rails_42358aa0a9 FOREIGN KEY (entry_id) REFERENCES public.entries(id);
 
 
 --
 -- Name: categories fk_rails_53b715888d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY categories
-    ADD CONSTRAINT fk_rails_53b715888d FOREIGN KEY (award_ceremony_id) REFERENCES award_ceremonies(id);
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT fk_rails_53b715888d FOREIGN KEY (award_ceremony_id) REFERENCES public.award_ceremonies(id);
 
 
 --
 -- Name: picks fk_rails_78f64222e2; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY picks
-    ADD CONSTRAINT fk_rails_78f64222e2 FOREIGN KEY (nominee_id) REFERENCES nominees(id);
+ALTER TABLE ONLY public.picks
+    ADD CONSTRAINT fk_rails_78f64222e2 FOREIGN KEY (nominee_id) REFERENCES public.nominees(id);
 
 
 --
 -- Name: pools fk_rails_7dd1327a40; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pools
-    ADD CONSTRAINT fk_rails_7dd1327a40 FOREIGN KEY (award_ceremony_id) REFERENCES award_ceremonies(id);
+ALTER TABLE ONLY public.pools
+    ADD CONSTRAINT fk_rails_7dd1327a40 FOREIGN KEY (award_ceremony_id) REFERENCES public.award_ceremonies(id);
 
 
 --
 -- Name: entries fk_rails_99dc12d4fd; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY entries
-    ADD CONSTRAINT fk_rails_99dc12d4fd FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE ONLY public.entries
+    ADD CONSTRAINT fk_rails_99dc12d4fd FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
 -- Name: entries fk_rails_cd311de9ac; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY entries
-    ADD CONSTRAINT fk_rails_cd311de9ac FOREIGN KEY (pool_id) REFERENCES pools(id);
+ALTER TABLE ONLY public.entries
+    ADD CONSTRAINT fk_rails_cd311de9ac FOREIGN KEY (pool_id) REFERENCES public.pools(id);
 
 
 --
@@ -525,41 +524,24 @@ ALTER TABLE ONLY entries
 
 SET search_path TO "$user", public;
 
-INSERT INTO schema_migrations (version) VALUES ('20170128224320');
-
-INSERT INTO schema_migrations (version) VALUES ('20170128235805');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129011235');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129011526');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129013216');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129014809');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129030402');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129030413');
-
-INSERT INTO schema_migrations (version) VALUES ('20170129034734');
-
-INSERT INTO schema_migrations (version) VALUES ('20170130035728');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202227');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202408');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202420');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202426');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202432');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202441');
-
-INSERT INTO schema_migrations (version) VALUES ('20170211202645');
-
-INSERT INTO schema_migrations (version) VALUES ('20170218051550');
-
-INSERT INTO schema_migrations (version) VALUES ('20170226010635');
+INSERT INTO "schema_migrations" (version) VALUES
+('20170226010635'),
+('20170218051550'),
+('20170211202645'),
+('20170211202441'),
+('20170211202432'),
+('20170211202426'),
+('20170211202420'),
+('20170211202408'),
+('20170211202227'),
+('20170130035728'),
+('20170129034734'),
+('20170129030413'),
+('20170129030402'),
+('20170129014809'),
+('20170129013216'),
+('20170129011526'),
+('20170129011235'),
+('20170128235805'),
+('20170128224320');
 
