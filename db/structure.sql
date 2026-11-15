@@ -34,7 +34,7 @@ CREATE TABLE public.award_ceremonies (
     name text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    locks_at timestamp without time zone
+    locks_at timestamp without time zone NOT NULL
 );
 
 
@@ -539,6 +539,7 @@ ALTER TABLE ONLY public.entries
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261115164822'),
 ('20261115163643'),
 ('20261115163552'),
 ('20170226010635'),
