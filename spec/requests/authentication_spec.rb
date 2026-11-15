@@ -38,28 +38,36 @@ RSpec.describe 'Authentication', type: :request do
   describe 'post-sign-in redirect' do
     let(:user) { create(:user) }
 
-    it 'returns to the referring page' do
-      post '/users/sign_in',
-           params: { user: { email: user.email, password: 'password' } },
-           headers: { 'HTTP_REFERER' => 'http://www.example.com/award_ceremonies' }
+    # A browser's sign-in POST carries the sign-in page (query string included) as
+    # its referer, so returning to the referer would bounce straight back to it.
+    ['http://www.example.com/users/sign_in', 'http://www.example.com/users/sign_in?redirect_to=%40evil.com',
+     'http://www.example.com/award_ceremonies'].each do |referer|
+      it "goes to the root rather than the referer #{referer}" do
+        post '/users/sign_in',
+             params: { user: { email: user.email, password: 'password' } },
+             headers: { 'HTTP_REFERER' => referer }
 
-      expect(response).to redirect_to('http://www.example.com/award_ceremonies')
-    end
-
-    # Guards against bouncing the user straight back to the login form.
-    it 'does not return to the sign-in page itself' do
-      post '/users/sign_in',
-           params: { user: { email: user.email, password: 'password' } },
-           headers: { 'HTTP_REFERER' => 'http://www.example.com/users/sign_in' }
-
-      expect(response).to redirect_to('http://www.example.com/')
+        expect(response).to redirect_to('http://www.example.com/')
+        follow_redirect!(headers: { 'HTTP_REFERER' => referer })
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     it 'returns to a local redirect_to path' do
       get '/users/sign_in', params: { redirect_to: '/pools' }
-      sign_in_as(user)
+      post '/users/sign_in',
+           params: { user: { email: user.email, password: 'password' } },
+           headers: { 'HTTP_REFERER' => 'http://www.example.com/users/sign_in?redirect_to=%2Fpools' }
 
       expect(response).to redirect_to('http://www.example.com/pools')
+    end
+
+    it 'ignores a redirect_to too long to fit in the session cookie' do
+      get '/users/sign_in', params: { redirect_to: "/#{'a' * 5000}" }
+      expect(response).to have_http_status(:ok)
+
+      sign_in_as(user)
+      expect(response).to redirect_to('http://www.example.com/')
     end
 
     ['@evil.com', '.evil.com', 'pools/1', '//evil.com', '/\\evil.com', 'https://evil.com/pools'].each do |target|
