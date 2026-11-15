@@ -6,14 +6,12 @@ RSpec.describe Entry do
   def entry_with_picks(winning:, categories: 3)
     ceremony = create(:award_ceremony, :with_categories, category_count: categories, nominee_count: 2)
     pool = create(:pool, award_ceremony: ceremony)
-    entry = create(:entry, pool: pool)
-
-    ceremony.categories.each_with_index do |category, index|
-      nominee = index < winning ? category.nominees.detect(&:winner?) : category.nominees.reject(&:winner?).first
-      create(:pick, entry: entry, category: category, nominee: nominee)
+    winners = ceremony.categories.first(winning)
+    nominee_for = lambda do |category|
+      winners.include?(category) ? category.nominees.detect(&:winner?) : category.nominees.reject(&:winner?).first
     end
 
-    entry.reload
+    create(:entry, pool: pool, nominee_for: nominee_for).reload
   end
 
   describe 'validations' do
@@ -23,6 +21,16 @@ RSpec.describe Entry do
 
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:user_id]).to include('already has an entry in this pool')
+    end
+
+    it 'requires a pick in every category of the ceremony on create' do
+      ceremony = create(:award_ceremony, :with_categories, category_count: 2)
+      category = ceremony.categories.first
+      entry = Entry.new(pool: create(:pool, award_ceremony: ceremony), user: create(:user))
+      entry.picks.build(category: category, nominee: category.nominees.first)
+
+      expect(entry).not_to be_valid
+      expect(entry.errors[:picks]).to include('must include one for every category')
     end
 
     it 'is backed by a unique index' do

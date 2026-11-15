@@ -28,10 +28,7 @@ RSpec.describe 'Pools', type: :request do
       ceremony = create(:award_ceremony, :with_categories, category_count: 2, nominee_count: 2)
       pool = create(:pool, award_ceremony: ceremony)
       entrant = create(:user, email: 'entrant@example.com')
-      entry = create(:entry, pool: pool, user: entrant)
-      ceremony.categories.each do |category|
-        create(:pick, entry: entry, category: category, nominee: category.nominees.detect(&:winner?))
-      end
+      create(:entry, pool: pool, user: entrant, nominee_for: ->(category) { category.nominees.detect(&:winner?) })
 
       sign_in_as(create(:user))
       get pool_path(pool)

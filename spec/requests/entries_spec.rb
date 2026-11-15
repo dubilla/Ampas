@@ -5,12 +5,8 @@ RSpec.describe 'Entries', type: :request do
   let(:pool) { create(:pool, award_ceremony: ceremony) }
   let(:owner) { create(:user) }
 
-  def entry_for(user, ceremony_for_picks: ceremony)
-    entry = create(:entry, pool: pool, user: user)
-    ceremony_for_picks.categories.each do |category|
-      create(:pick, entry: entry, category: category, nominee: category.nominees.first)
-    end
-    entry.reload
+  def entry_for(user)
+    create(:entry, pool: pool, user: user).reload
   end
 
   def after_lock
@@ -99,12 +95,35 @@ RSpec.describe 'Entries', type: :request do
 
     it 'rejects two picks for the same category' do
       sign_in_as(owner)
-      category = ceremony.categories.first
-      picks = { '0' => { category_id: category.id, nominee_id: category.nominees.first.id },
-                '1' => { category_id: category.id, nominee_id: category.nominees.last.id } }
+      first, second = ceremony.categories.to_a
+      picks = { '0' => { category_id: first.id, nominee_id: first.nominees.first.id },
+                '1' => { category_id: first.id, nominee_id: first.nominees.last.id },
+                '2' => { category_id: second.id, nominee_id: second.nominees.first.id } }
 
       expect {
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
+      }.not_to change(Entry, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it 'rejects an entry that skips a category' do
+      sign_in_as(owner)
+      category = ceremony.categories.first
+      picks = { '0' => { category_id: category.id, nominee_id: category.nominees.first.id } }
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
+      }.not_to change(Entry, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    # A blank category_id is dropped by the nested-attributes reject_if, so this
+    # saves an entry with zero picks unless the model catches it.
+    it 'rejects an entry with no picks' do
+      sign_in_as(owner)
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: { '0' => { category_id: '', nominee_id: '' } } } }
       }.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
     end
