@@ -95,23 +95,21 @@ newcomer@example.com / password   -- has no entry
 
 ## Testing
 
-RSpec, with 59 examples covering models, policies, and every route:
+RSpec, with 106 examples covering models, policies, every route, and the
+browser-only Turbo behaviour:
 
 ```bash
 bundle exec rspec
 ```
 
 ```
-spec/models/     entry, pool, category, pick     22
-spec/policies/   entry_policy                     9
-spec/requests/   authentication, pools, entries  28
+spec/models/     award_ceremony, category, entry, pick, pool, user   29
+spec/policies/   entry_policy                                        17
+spec/requests/   authentication, entries, pools                      57
+spec/system/     turbo_navigation (headless Chrome)                   3
 ```
 
-These are **characterization tests**: they assert what the app does today, bugs
-included. Known bugs are recorded as passing specs marked `TODO`; the most serious
-is that `EntriesController#update` performs no authorization at all. See `TODO.md`.
-
-The `test/` directory is stock Rails scaffolding and contains no tests.
+The system specs need a local Chrome.
 
 ## Code quality
 
