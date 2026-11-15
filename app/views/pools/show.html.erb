@@ -1,5 +1,5 @@
 <div>
-  <h3>Pool</h3>
+  <h3><%= @pool.award_ceremony_name %></h3>
   <% if current_user ? policy(Entry.new(pool: @pool, user: current_user)).new? : !@pool.locked? %>
     <%= link_to 'Join Pool', new_pool_entry_path(pool_id: @pool.id) %>
   <% end %>

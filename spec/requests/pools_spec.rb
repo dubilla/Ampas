@@ -70,17 +70,14 @@ RSpec.describe 'Pools', type: :request do
       end
     end
 
-    # CHARACTERIZATION: the page heading is the literal string "Pool" -- it never
-    # names the ceremony, even though Pool#award_ceremony_name exists for it.
-    # TODO: show the ceremony name here.
-    it 'does not name the award ceremony' do
+    it 'names the award ceremony' do
       ceremony = create(:award_ceremony, name: 'The 90th Academy Awards')
       pool = create(:pool, award_ceremony: ceremony)
 
       sign_in_as(create(:user))
       get pool_path(pool)
 
-      expect(response.body).not_to include('The 90th Academy Awards')
+      expect(response.body).to include('<h3>The 90th Academy Awards</h3>')
     end
   end
 
