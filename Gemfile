@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '3.3.13'
 
-rails_version = '7.1.6'
+rails_version = '7.2.4'
 gem 'actionmailer', rails_version
 gem 'actionpack', rails_version
 gem 'actionview', rails_version
