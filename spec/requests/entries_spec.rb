@@ -230,8 +230,11 @@ RSpec.describe 'Entries', type: :request do
       ceremony = create(:award_ceremony, :with_categories, category_count: category_count, nominee_count: 3)
       entry = create(:entry, pool: create(:pool, award_ceremony: ceremony), user: owner)
       sign_in_as(owner)
-      counts = [count_queries { get entry_path(entry) }, count_queries { get edit_entry_path(entry) }]
-      Timecop.travel(ceremony.locks_at + 1.minute) { counts << count_queries { get entry_path(entry) } }
+      counted_get = lambda do |path|
+        count_queries { get path }.tap { expect(response).to have_http_status(:ok) }
+      end
+      counts = [counted_get.call(entry_path(entry)), counted_get.call(edit_entry_path(entry))]
+      Timecop.travel(ceremony.locks_at + 1.minute) { counts << counted_get.call(entry_path(entry)) }
       sign_out!
       counts
     end

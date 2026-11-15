@@ -21,6 +21,20 @@ RSpec.describe 'Pools', type: :request do
       expect(response.body).to include(pool_path(mine))
       expect(response.body).not_to include(pool_path(theirs))
     end
+
+    it 'runs the same number of queries however many pools the user has entered' do
+      user = create(:user)
+      create(:entry, user: user)
+      sign_in_as(user)
+
+      one_pool = count_queries { get '/pools' }
+      expect(response).to have_http_status(:ok)
+      3.times { create(:entry, user: user) }
+      four_pools = count_queries { get '/pools' }
+      expect(response).to have_http_status(:ok)
+
+      expect(four_pools).to eq(one_pool)
+    end
   end
 
   describe 'GET /pools/:id' do
@@ -75,8 +89,10 @@ RSpec.describe 'Pools', type: :request do
       sign_in_as(create(:user))
 
       one_entry = count_queries { get pool_path(pool) }
+      expect(response).to have_http_status(:ok)
       3.times { add_entry.call }
       four_entries = count_queries { get pool_path(pool) }
+      expect(response).to have_http_status(:ok)
 
       expect(four_entries).to eq(one_entry)
     end
