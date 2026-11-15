@@ -1,9 +1,15 @@
 class EntryPolicy < ApplicationPolicy
   def show?
-    (user.present? && user.entries.include?(record)) || record.locked?
+    owner? || record.locked?
   end
 
   def update?
-    user.entries.include?(record) && !record.locked?
+    owner? && !record.locked?
+  end
+
+  private
+
+  def owner?
+    user.present? && user.entries.include?(record)
   end
 end
