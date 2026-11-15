@@ -3,7 +3,7 @@ class EntryPolicy < ApplicationPolicy
     (user.present? && user.entries.include?(record)) || record.locked?
   end
 
-  def edit?
+  def update?
     user.entries.include?(record) && !record.locked?
   end
 end
