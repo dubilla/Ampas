@@ -20,8 +20,6 @@ gem 'puma', '~> 8.0'
 
 gem 'importmap-rails', '~> 2.2'
 gem 'turbo-rails', '~> 2.0'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 
 # Use ActiveModel has_secure_password
