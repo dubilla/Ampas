@@ -38,20 +38,18 @@ RSpec.describe 'Turbo navigation', type: :system do
     expect(page).to have_no_link('Logout')
   end
 
-  # Uses a user without entries: destroying one with entries raises
-  # ActiveRecord::InvalidForeignKey today (User has no dependent: on entries).
-  it 'asks for confirmation before cancelling an account' do
-    loner = create(:user)
-    sign_in(as: loner)
+  it 'asks for confirmation before cancelling an account, then deletes its entries' do
+    sign_in
     expect(page).to have_link('Logout')
     visit edit_user_registration_path
 
     dismiss_confirm('Are you sure?') { click_button 'Cancel my account' }
-    expect(User.exists?(loner.id)).to be(true)
+    expect(User.exists?(user.id)).to be(true)
 
     accept_confirm('Are you sure?') { click_button 'Cancel my account' }
     expect(page).to have_link('Log in')
-    expect(User.exists?(loner.id)).to be(false)
+    expect(User.exists?(user.id)).to be(false)
+    expect(Entry.exists?(entry.id)).to be(false)
   end
 
   it 're-renders the sign-in form after a failed sign-in' do
