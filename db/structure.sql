@@ -407,6 +407,13 @@ CREATE INDEX index_entries_on_user_id ON public.entries USING btree (user_id);
 
 
 --
+-- Name: index_entries_on_user_id_and_pool_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_entries_on_user_id_and_pool_id ON public.entries USING btree (user_id, pool_id);
+
+
+--
 -- Name: index_nominees_on_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -525,6 +532,7 @@ ALTER TABLE ONLY public.entries
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261115163552'),
 ('20170226010635'),
 ('20170218051550'),
 ('20170211202645'),

@@ -32,6 +32,19 @@ RSpec.describe 'Entries', type: :request do
       # One select per category.
       expect(response.body.scan(/name="entry\[picks_attributes\]/).size).to be >= ceremony.categories.count
     end
+
+    it 'denies the form after the pool has locked' do
+      sign_in_as(owner)
+
+      after_lock { expect { get new_pool_entry_path(pool) }.to raise_error(Pundit::NotAuthorizedError) }
+    end
+
+    it 'denies the form to a user who already has an entry in the pool' do
+      entry_for(owner)
+      sign_in_as(owner)
+
+      expect { get new_pool_entry_path(pool) }.to raise_error(Pundit::NotAuthorizedError)
+    end
   end
 
   describe 'POST /pools/:pool_id/entries' do
@@ -65,18 +78,25 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
-    # CHARACTERIZATION -- #create never calls `authorize`, so a signed-in user can
-    # still submit a new entry after the pool locks, when winners may be known.
-    # TODO: add EntryPolicy#create? (not locked), authorize in #new/#create, and
-    # flip this to expect Pundit::NotAuthorizedError.
-    it 'allows a new entry after the pool has locked' do
+    it 'denies a new entry after the pool has locked' do
       sign_in_as(owner)
 
       after_lock do
         expect {
           post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
-        }.to change(Entry, :count).by(1)
+        }.to raise_error(Pundit::NotAuthorizedError)
       end
+      expect(Entry.count).to eq(0)
+    end
+
+    it 'denies a second entry in the same pool' do
+      entry_for(owner)
+      sign_in_as(owner)
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+      }.to raise_error(Pundit::NotAuthorizedError)
+      expect(owner.entries.count).to eq(1)
     end
   end
 

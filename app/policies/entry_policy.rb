@@ -3,6 +3,10 @@ class EntryPolicy < ApplicationPolicy
     owner? || record.locked?
   end
 
+  def create?
+    user.present? && !record.locked? && !user.entries.exists?(pool_id: record.pool_id)
+  end
+
   def update?
     owner? && !record.locked?
   end
