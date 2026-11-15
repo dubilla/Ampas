@@ -94,23 +94,13 @@ RSpec.describe Entry do
       expect { entry.reload.destroy }.to change(Pick, :count).by(-1)
     end
 
-    # CHARACTERIZATION -- this records a real latent bug, not desired behavior.
-    #
-    # `validates_associated :picks` loads and caches the picks association during
-    # Entry.create!. Picks added afterwards do not invalidate that cache, so
-    # `dependent: :destroy` iterates a stale empty array, deletes nothing, and the
-    # DELETE then trips the picks->entries foreign key.
-    #
-    # Latent only because nothing in the app destroys an entry: there is no
-    # destroy action and no route for one.
-    #
-    # TODO: fix by reloading before destroy, or by replacing
-    # `dependent: :destroy` with `dependent: :delete_all`.
-    it 'fails to destroy picks when the association cache is stale' do
+    # `validates_associated :picks` caches the association during create, so
+    # picks added afterwards are invisible to a `dependent: :destroy` walk.
+    it 'deletes picks added after the entry was saved' do
       entry = create(:entry)
       create(:pick, entry: entry)
 
-      expect { entry.destroy }.to raise_error(ActiveRecord::InvalidForeignKey)
+      expect { entry.destroy }.to change(Pick, :count).by(-1)
     end
 
     it 'accepts nested attributes for picks' do

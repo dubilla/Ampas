@@ -4,7 +4,7 @@ class Entry < ApplicationRecord
   # `inverse_of` must be explicit: the ordering scope above suppresses Rails'
   # automatic inverse detection, which leaves `pick.entry` nil while saving
   # nested attributes. Harmless until Rails 5 made `belongs_to` required.
-  has_many :picks, -> { order(:created_at) }, dependent: :destroy, inverse_of: :entry
+  has_many :picks, -> { order(:created_at) }, dependent: :delete_all, inverse_of: :entry
   accepts_nested_attributes_for :picks, reject_if: ->(attributes) { attributes['id'].blank? && attributes['category_id'].blank? }
   validates_associated :picks
   validate :one_pick_per_category
