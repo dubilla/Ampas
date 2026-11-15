@@ -2,8 +2,17 @@ source 'https://rubygems.org'
 
 ruby '3.3.13'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '7.1.5.1'
+rails_version = '7.1.5.1'
+gem 'actionmailer', rails_version
+gem 'actionpack', rails_version
+gem 'actionview', rails_version
+gem 'activejob', rails_version
+gem 'activemodel', rails_version
+gem 'activerecord', rails_version
+gem 'activesupport', rails_version
+gem 'railties', rails_version
+gem 'sprockets-rails', '~> 3.5'
+
 gem 'pg'
 # 1.19.3 fixes GHSA-c4rq-3m3g-8wgx.
 gem 'nokogiri', '>= 1.19.3'
