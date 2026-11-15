@@ -8,6 +8,7 @@ class Entry < ApplicationRecord
   accepts_nested_attributes_for :picks, reject_if: ->(attributes) { attributes['id'].blank? && attributes['category_id'].blank? }
   validates_associated :picks
   validate :one_pick_per_category
+  validate :pick_for_every_category, on: :create
   validates :user_id, uniqueness: { scope: :pool_id, message: 'already has an entry in this pool' }
 
   delegate :award_ceremony, to: :pool
@@ -33,6 +34,14 @@ class Entry < ApplicationRecord
     category_ids = picks.reject(&:marked_for_destruction?).map(&:category_id)
     if category_ids.uniq.size < category_ids.size
       errors.add(:picks, 'can only include one pick per category')
+    end
+  end
+
+  def pick_for_every_category
+    return unless pool
+    picked = picks.reject(&:marked_for_destruction?).map(&:category_id)
+    if (pool.categories.ids - picked).any?
+      errors.add(:picks, 'must include one for every category')
     end
   end
 end

@@ -42,9 +42,22 @@ FactoryBot.define do
     award_ceremony
   end
 
+  # Entries must pick in every category of the ceremony when created, so the
+  # factory fills in one pick per category, choosing `nominee_for.(category)`.
   factory :entry do
     pool
     user
+
+    transient do
+      nominee_for { ->(category) { category.nominees.first } }
+    end
+
+    after(:build) do |entry, evaluator|
+      next if entry.picks.any?
+      entry.pool.categories.each do |category|
+        entry.picks.build(category: category, nominee: evaluator.nominee_for.call(category))
+      end
+    end
   end
 
   factory :pick do

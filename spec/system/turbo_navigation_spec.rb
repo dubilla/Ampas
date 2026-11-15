@@ -7,11 +7,7 @@ RSpec.describe 'Turbo navigation', type: :system do
   let(:pool) { create(:pool, award_ceremony: ceremony) }
   let(:user) { create(:user) }
   let(:category) { ceremony.categories.first }
-  let!(:entry) do
-    create(:entry, pool: pool, user: user).tap do |e|
-      create(:pick, entry: e, category: category, nominee: category.nominees.first)
-    end
-  end
+  let!(:entry) { create(:entry, pool: pool, user: user) }
 
   def sign_in(as: user, password: 'password')
     visit new_user_session_path
