@@ -14,6 +14,6 @@ class EntryPolicy < ApplicationPolicy
   private
 
   def owner?
-    user.present? && user.entries.include?(record)
+    user.present? && record.user_id == user.id
   end
 end
