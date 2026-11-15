@@ -132,6 +132,18 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    # Two near-simultaneous submissions can both pass the policy and the
+    # uniqueness validation; the unique index stops the second one.
+    it 'treats losing the duplicate-entry race like a denial' do
+      sign_in_as(owner)
+      allow_any_instance_of(Entry).to receive(:save).and_raise(ActiveRecord::RecordNotUnique)
+
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+
+      expect(response).to redirect_to(pool_path(pool))
+      expect(flash[:alert]).to eq("Sorry, you can't do that.")
+    end
+
     it 'denies a second entry in the same pool' do
       entry_for(owner)
       sign_in_as(owner)
@@ -242,7 +254,7 @@ RSpec.describe 'Entries', type: :request do
       expect(other_entry.reload.score).to eq(ceremony.categories.count)
     end
 
-    it "rejects extra id-less picks that would inflate the score" do
+    it "ignores extra id-less picks that would inflate the score" do
       entry = entry_for(owner)
       sign_in_as(owner)
       extra = entry.picks.each_with_index.to_h do |pick, index|
@@ -251,9 +263,23 @@ RSpec.describe 'Entries', type: :request do
 
       patch entry_path(entry), params: { entry: { picks_attributes: extra } }
 
-      expect(response).to have_http_status(:unprocessable_content)
+      expect(response).to redirect_to(entry_path(entry))
       expect(entry.reload.picks.count).to eq(ceremony.categories.count)
       expect(entry.score).to eq(ceremony.categories.count)
+    end
+
+    it "ignores attempts to move picks to other categories" do
+      entry = entry_for(owner)
+      sign_in_as(owner)
+      first, second = entry.picks.to_a
+      swapped = {
+        '0' => { id: first.id, category_id: second.category_id, nominee_id: second.nominee_id },
+        '1' => { id: second.id, category_id: first.category_id, nominee_id: first.nominee_id }
+      }
+
+      patch entry_path(entry), params: { entry: { picks_attributes: swapped } }
+
+      expect(entry.picks.map { |pick| pick.reload.category_id }).to eq([first.category_id, second.category_id])
     end
 
     it 'requires authentication' do

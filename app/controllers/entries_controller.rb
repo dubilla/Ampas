@@ -24,7 +24,7 @@ class EntriesController < ApplicationController
 
   def update
     authorize entry
-    if entry.update(entry_params)
+    if entry.update(update_params)
       redirect_to entry
     else
       render 'edit', status: :unprocessable_content
@@ -32,7 +32,7 @@ class EntriesController < ApplicationController
   end
 
   def create
-    @entry = Entry.new(entry_params)
+    @entry = Entry.new(create_params)
     @entry.pool = pool
     @entry.user = current_user
     authorize @entry
@@ -41,6 +41,8 @@ class EntriesController < ApplicationController
     else
       render 'new', status: :unprocessable_content
     end
+  rescue ActiveRecord::RecordNotUnique
+    redirect_to pool_path(pool), alert: "Sorry, you can't do that.", status: :see_other
   end
 
   private
@@ -53,9 +55,11 @@ class EntriesController < ApplicationController
     @pool ||= Pool.find(params[:pool_id])
   end
 
-  def entry_params
-    params
-      .required(:entry)
-      .permit(picks_attributes: [:id, :nominee_id, :category_id])
+  def create_params
+    params.expect(entry: [picks_attributes: [[:nominee_id, :category_id]]])
+  end
+
+  def update_params
+    params.expect(entry: [picks_attributes: [[:id, :nominee_id]]])
   end
 end
