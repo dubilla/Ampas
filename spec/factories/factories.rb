@@ -49,7 +49,7 @@ FactoryBot.define do
 
   factory :pick do
     entry
-    category
-    nominee
+    category { association :category, award_ceremony: entry.pool.award_ceremony }
+    nominee { association :nominee, category: category }
   end
 end

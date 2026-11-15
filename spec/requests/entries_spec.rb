@@ -78,6 +78,28 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
+    it 'rejects a nominee from a different category' do
+      sign_in_as(owner)
+      other_category = ceremony.categories.last
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(_c) { other_category.nominees.first.id }) } }
+      }.not_to change(Entry, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it 'rejects two picks for the same category' do
+      sign_in_as(owner)
+      category = ceremony.categories.first
+      picks = { '0' => { category_id: category.id, nominee_id: category.nominees.first.id },
+                '1' => { category_id: category.id, nominee_id: category.nominees.last.id } }
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
+      }.not_to change(Entry, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
     it 'denies a new entry after the pool has locked' do
       sign_in_as(owner)
 
@@ -169,6 +191,31 @@ RSpec.describe 'Entries', type: :request do
 
       expect(response).to redirect_to(entry_path(entry))
       expect(entry.reload.score).to eq(0)
+    end
+
+    it "can't reach another entry's picks through nested attributes" do
+      entry = entry_for(owner)
+      other_entry = entry_for(create(:user))
+      sign_in_as(owner)
+
+      expect {
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(other_entry) } }
+      }.to raise_error(ActiveRecord::RecordNotFound)
+      expect(other_entry.reload.score).to eq(ceremony.categories.count)
+    end
+
+    it "rejects extra id-less picks that would inflate the score" do
+      entry = entry_for(owner)
+      sign_in_as(owner)
+      extra = entry.picks.each_with_index.to_h do |pick, index|
+        [index.to_s, { category_id: pick.category_id, nominee_id: pick.nominee_id }]
+      end
+
+      patch entry_path(entry), params: { entry: { picks_attributes: extra } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(entry.reload.picks.count).to eq(ceremony.categories.count)
+      expect(entry.score).to eq(ceremony.categories.count)
     end
 
     it 'requires authentication' do

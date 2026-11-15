@@ -7,6 +7,7 @@ class Entry < ApplicationRecord
   has_many :picks, -> { order(:created_at) }, dependent: :destroy, inverse_of: :entry
   accepts_nested_attributes_for :picks
   validates_associated :picks
+  validate :one_pick_per_category
   validates :user_id, uniqueness: { scope: :pool_id, message: 'already has an entry in this pool' }
 
   delegate :award_ceremony, to: :pool
@@ -24,5 +25,14 @@ class Entry < ApplicationRecord
 
   def score
     picks.map(&:nominee).select(&:winner?).count
+  end
+
+  private
+
+  def one_pick_per_category
+    category_ids = picks.reject(&:marked_for_destruction?).map(&:category_id)
+    if category_ids.uniq.size < category_ids.size
+      errors.add(:picks, 'can only include one pick per category')
+    end
   end
 end

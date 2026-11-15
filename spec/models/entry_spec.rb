@@ -114,9 +114,10 @@ RSpec.describe Entry do
     end
 
     it 'accepts nested attributes for picks' do
-      category = create(:category)
+      pool = create(:pool)
+      category = create(:category, award_ceremony: pool.award_ceremony)
       nominee = create(:nominee, category: category)
-      entry = Entry.new(pool: create(:pool), user: create(:user))
+      entry = Entry.new(pool: pool, user: create(:user))
       entry.picks_attributes = [{ category_id: category.id, nominee_id: nominee.id }]
       expect(entry.save).to be(true)
       expect(entry.picks.count).to eq(1)
