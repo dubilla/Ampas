@@ -115,6 +115,23 @@ RSpec.describe 'Entries', type: :request do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
       }.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('Picks must include one for every category')
+      # The re-rendered form keeps the submitted pick and offers the skipped category.
+      ceremony.categories.each { |c| expect(response.body).to include(c.name) }
+      expect(response.body).to match(/value="#{category.nominees.first.id}" checked="checked"/)
+    end
+
+    it 'rejects a pick for a category that does not exist, and re-renders the form' do
+      sign_in_as(owner)
+      picks = pick_params(nominee_for: ->(c) { c.nominees.first.id })
+      picks['2'] = { category_id: Category.maximum(:id) + 1000, nominee_id: ceremony.categories.first.nominees.first.id }
+
+      expect {
+        post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
+      }.not_to change(Entry, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('Picks category must exist')
+      expect(response.body.scan(/<li class="category">/).size).to eq(ceremony.categories.count)
     end
 
     # A blank category_id is dropped by the nested-attributes reject_if, so this

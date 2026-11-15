@@ -3,13 +3,9 @@ class EntriesController < ApplicationController
   before_action :authenticate_user!
 
   def new
-    @entry = pool.entries.build(
-      {
-        picks_attributes: @pool.categories.map{ |c| Pick.new(category_id: c.id) }.map(&:attributes),
-        user: current_user
-      }
-    )
+    @entry = pool.entries.build(user: current_user)
     authorize @entry
+    @picks = picks_for_form
   end
 
   def edit
@@ -39,6 +35,7 @@ class EntriesController < ApplicationController
     if @entry.save
       redirect_to @entry
     else
+      @picks = picks_for_form
       render 'new', status: :unprocessable_content
     end
   rescue ActiveRecord::RecordNotUnique
@@ -53,6 +50,13 @@ class EntriesController < ApplicationController
 
   def pool
     @pool ||= Pool.find(params[:pool_id])
+  end
+
+  # One row per category on the ceremony, keeping whatever was submitted for it.
+  # Picks for categories outside the ceremony are left off the form.
+  def picks_for_form
+    submitted = @entry.picks.index_by(&:category_id)
+    pool.categories.map { |category| submitted[category.id] || @entry.picks.build(category: category) }
   end
 
   def create_params
