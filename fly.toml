@@ -5,7 +5,7 @@ console_command = '/rails/bin/rails console'
 [build]
 
 [deploy]
-  release_command = "bash -c 'DATABASE_URL=$DIRECT_DATABASE_URL ./bin/rails db:migrate'"
+  release_command = "bash -c 'DATABASE_URL=${DIRECT_DATABASE_URL:?unset} ./bin/rails db:migrate'"
 
 [http_service]
   internal_port = 3000

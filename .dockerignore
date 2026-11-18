@@ -55,3 +55,7 @@
 /logs
 /.playwright-mcp
 /coverage
+/docs
+/.claude
+/spec
+/TODO.md
