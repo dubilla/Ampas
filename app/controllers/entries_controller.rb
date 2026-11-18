@@ -1,5 +1,4 @@
 class EntriesController < ApplicationController
-
   before_action :authenticate_user!
 
   def new
@@ -45,7 +44,8 @@ class EntriesController < ApplicationController
   private
 
   def entry
-    @entry ||= Entry.includes(:user, pool: :award_ceremony, picks: [:nominee, { category: :nominees }]).find(params[:id])
+    @entry ||= Entry.includes(:user, pool: :award_ceremony,
+                                     picks: [:nominee, { category: :nominees }]).find(params[:id])
   end
 
   def pool
@@ -62,10 +62,10 @@ class EntriesController < ApplicationController
   end
 
   def create_params
-    params.expect(entry: [picks_attributes: [[:nominee_id, :category_id]]])
+    params.expect(entry: [{ picks_attributes: [%i[nominee_id category_id]] }])
   end
 
   def update_params
-    params.expect(entry: [picks_attributes: [[:id, :nominee_id]]])
+    params.expect(entry: [{ picks_attributes: [%i[id nominee_id]] }])
   end
 end

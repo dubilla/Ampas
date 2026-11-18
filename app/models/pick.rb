@@ -14,21 +14,23 @@ class Pick < ApplicationRecord
 
   def category_in_entry_ceremony
     return unless category && entry&.pool
-    unless category.award_ceremony_id == entry.pool.award_ceremony_id
-      errors.add(:category, 'is not part of this award ceremony')
-    end
+
+    return if category.award_ceremony_id == entry.pool.award_ceremony_id
+
+    errors.add(:category, 'is not part of this award ceremony')
   end
 
   def nominee_in_category
     return unless nominee && category
-    unless nominee.category_id == category_id
-      errors.add(:nominee, 'is not in this category')
-    end
+
+    return if nominee.category_id == category_id
+
+    errors.add(:nominee, 'is not in this category')
   end
 
   def complete?
-    unless nominee.present?
-      errors.add(:nominee, 'is missing')
-    end
+    return if nominee.present?
+
+    errors.add(:nominee, 'is missing')
   end
 end

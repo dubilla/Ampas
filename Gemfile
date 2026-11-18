@@ -10,8 +10,8 @@ gem 'activejob', rails_version
 gem 'activemodel', rails_version
 gem 'activerecord', rails_version
 gem 'activesupport', rails_version
-gem 'railties', rails_version
 gem 'propshaft', '~> 1.3'
+gem 'railties', rails_version
 
 gem 'pg'
 # 1.19.3 fixes GHSA-c4rq-3m3g-8wgx.
@@ -33,15 +33,14 @@ gem 'turbo-rails', '~> 2.0'
 
 gem 'devise', '~> 5.0.4'
 
-
 gem 'pundit'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  gem 'rspec-rails', '~> 8.1.0'
-  gem 'factory_bot_rails', '~> 6.4'
   gem 'capybara', '~> 3.40'
+  gem 'factory_bot_rails', '~> 6.4'
+  gem 'rspec-rails', '~> 8.1.0'
   gem 'selenium-webdriver', '~> 4.52'
   gem 'timecop', '~> 0.9'
 end
@@ -54,5 +53,4 @@ group :development do
   gem 'pry-byebug'
 
   gem 'rubocop', require: false
-
-  end
+end

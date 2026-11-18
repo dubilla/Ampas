@@ -30,9 +30,10 @@ RSpec.describe 'Authentication', type: :request do
   end
 
   it 'registers a new user' do
-    expect {
-      post '/users', params: { user: { email: 'brand-new@example.com', password: 'password', password_confirmation: 'password' } }
-    }.to change(User, :count).by(1)
+    expect do
+      post '/users',
+           params: { user: { email: 'brand-new@example.com', password: 'password', password_confirmation: 'password' } }
+    end.to change(User, :count).by(1)
   end
 
   describe 'post-sign-in redirect' do
