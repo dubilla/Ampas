@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers: {sessions: 'users/sessions', registrations: 'users/registrations', passwords: 'users/passwords'}
+  devise_for :users,
+             controllers: { sessions: 'users/sessions', registrations: 'users/registrations',
+                            passwords: 'users/passwords' }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
@@ -16,9 +18,9 @@ Rails.application.routes.draw do
   #   resources :products
 
   resources :award_ceremonies, only: :index
-  resources :entries, only: [:show, :edit, :update]
-  resources :pools, only: [:show, :index] do
-    resources :entries, only: [:new, :create]
+  resources :entries, only: %i[show edit update]
+  resources :pools, only: %i[show index] do
+    resources :entries, only: %i[new create]
   end
 
   # Example resource route with options:

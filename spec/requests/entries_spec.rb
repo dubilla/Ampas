@@ -9,8 +9,8 @@ RSpec.describe 'Entries', type: :request do
     create(:entry, pool: pool, user: user).reload
   end
 
-  def after_lock
-    Timecop.travel(ceremony.locks_at + 1.minute) { yield }
+  def after_lock(&)
+    Timecop.travel(ceremony.locks_at + 1.minute, &)
   end
 
   def expect_denied
@@ -31,7 +31,7 @@ RSpec.describe 'Entries', type: :request do
       expect(response).to have_http_status(:ok)
       ceremony.categories.each { |category| expect(response.body).to include(category.name) }
       # One select per category.
-      expect(response.body.scan(/name="entry\[picks_attributes\]/).size).to be >= ceremony.categories.count
+      expect(response.body.scan('name="entry[picks_attributes]').size).to be >= ceremony.categories.count
     end
 
     it 'denies the form after the pool has locked' do
@@ -62,9 +62,11 @@ RSpec.describe 'Entries', type: :request do
     it 'creates an entry owned by the current user' do
       sign_in_as(owner)
 
-      expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
-      }.to change(Entry, :count).by(1)
+      expect do
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+          c.nominees.first.id
+        }) } }
+      end.to change(Entry, :count).by(1)
 
       entry = Entry.last
       expect(entry.user).to eq(owner)
@@ -77,9 +79,11 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
       first, second = ceremony.categories.to_a
 
-      expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c == first ? nil : c.nominees.first.id }) } }
-      }.not_to change(Entry, :count)
+      expect do
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+          c == first ? nil : c.nominees.first.id
+        }) } }
+      end.not_to change(Entry, :count)
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("<li>#{first.name}: nominee is missing</li>")
@@ -91,9 +95,11 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
       other_category = ceremony.categories.last
 
-      expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(_c) { other_category.nominees.first.id }) } }
-      }.not_to change(Entry, :count)
+      expect do
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |_c|
+          other_category.nominees.first.id
+        }) } }
+      end.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
     end
 
@@ -104,9 +110,9 @@ RSpec.describe 'Entries', type: :request do
                 '1' => { category_id: first.id, nominee_id: first.nominees.last.id },
                 '2' => { category_id: second.id, nominee_id: second.nominees.first.id } }
 
-      expect {
+      expect do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
-      }.not_to change(Entry, :count)
+      end.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
     end
 
@@ -115,9 +121,9 @@ RSpec.describe 'Entries', type: :request do
       category = ceremony.categories.first
       picks = { '0' => { category_id: category.id, nominee_id: category.nominees.first.id } }
 
-      expect {
+      expect do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
-      }.not_to change(Entry, :count)
+      end.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include('Pick a nominee in every category')
       # The re-rendered form keeps the submitted pick and offers the skipped category.
@@ -128,14 +134,15 @@ RSpec.describe 'Entries', type: :request do
     it 'rejects a pick for a category that does not exist, and re-renders the form' do
       sign_in_as(owner)
       picks = pick_params(nominee_for: ->(c) { c.nominees.first.id })
-      picks['2'] = { category_id: Category.maximum(:id) + 1000, nominee_id: ceremony.categories.first.nominees.first.id }
+      picks['2'] =
+        { category_id: Category.maximum(:id) + 1000, nominee_id: ceremony.categories.first.nominees.first.id }
 
-      expect {
+      expect do
         post pool_entries_path(pool), params: { entry: { picks_attributes: picks } }
-      }.not_to change(Entry, :count)
+      end.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include('Some picks are for categories outside this ceremony')
-      expect(response.body.scan(/<li class="category">/).size).to eq(ceremony.categories.count)
+      expect(response.body.scan('<li class="category">').size).to eq(ceremony.categories.count)
     end
 
     # A blank category_id is dropped by the nested-attributes reject_if, so this
@@ -143,9 +150,10 @@ RSpec.describe 'Entries', type: :request do
     it 'rejects an entry with no picks' do
       sign_in_as(owner)
 
-      expect {
-        post pool_entries_path(pool), params: { entry: { picks_attributes: { '0' => { category_id: '', nominee_id: '' } } } }
-      }.not_to change(Entry, :count)
+      expect do
+        post pool_entries_path(pool),
+             params: { entry: { picks_attributes: { '0' => { category_id: '', nominee_id: '' } } } }
+      end.not_to change(Entry, :count)
       expect(response).to have_http_status(:unprocessable_content)
     end
 
@@ -153,7 +161,9 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
 
       after_lock do
-        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+        post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+          c.nominees.first.id
+        }) } }
       end
 
       expect_denied
@@ -165,7 +175,9 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
       referer = { 'HTTP_REFERER' => "http://www.example.com#{new_pool_entry_path(pool)}" }
 
-      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }, headers: referer
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+        c.nominees.first.id
+      }) } }, headers: referer
 
       expect(response).to redirect_to(pool_path(pool))
       follow_redirect!(headers: referer)
@@ -178,7 +190,9 @@ RSpec.describe 'Entries', type: :request do
       sign_in_as(owner)
       allow_any_instance_of(Entry).to receive(:save).and_raise(ActiveRecord::RecordNotUnique)
 
-      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+        c.nominees.first.id
+      }) } }
 
       expect(response).to redirect_to(pool_path(pool))
       expect(flash[:alert]).to eq("Sorry, you can't do that.")
@@ -188,7 +202,9 @@ RSpec.describe 'Entries', type: :request do
       entry_for(owner)
       sign_in_as(owner)
 
-      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: ->(c) { c.nominees.first.id }) } }
+      post pool_entries_path(pool), params: { entry: { picks_attributes: pick_params(nominee_for: lambda { |c|
+        c.nominees.first.id
+      }) } }
 
       expect_denied
       expect(owner.entries.count).to eq(1)
@@ -280,7 +296,7 @@ RSpec.describe 'Entries', type: :request do
 
       expect(response).to redirect_to(pool_path(pool))
       follow_redirect!
-      expect(response.body).to include("Sorry, you can&#39;t do that.")
+      expect(response.body).to include('Sorry, you can&#39;t do that.')
     end
   end
 
@@ -307,13 +323,13 @@ RSpec.describe 'Entries', type: :request do
       other_entry = entry_for(create(:user))
       sign_in_as(owner)
 
-      expect {
+      expect do
         patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(other_entry) } }
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      end.to raise_error(ActiveRecord::RecordNotFound)
       expect(other_entry.reload.score).to eq(ceremony.categories.count)
     end
 
-    it "ignores extra id-less picks that would inflate the score" do
+    it 'ignores extra id-less picks that would inflate the score' do
       entry = entry_for(owner)
       sign_in_as(owner)
       extra = entry.picks.each_with_index.to_h do |pick, index|
@@ -327,7 +343,7 @@ RSpec.describe 'Entries', type: :request do
       expect(entry.score).to eq(ceremony.categories.count)
     end
 
-    it "ignores attempts to move picks to other categories" do
+    it 'ignores attempts to move picks to other categories' do
       entry = entry_for(owner)
       sign_in_as(owner)
       first, second = entry.picks.to_a
@@ -378,7 +394,8 @@ RSpec.describe 'Entries', type: :request do
       referer = { 'HTTP_REFERER' => "http://www.example.com#{edit_entry_path(entry)}" }
 
       after_lock do
-        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } }, headers: referer
+        patch entry_path(entry), params: { entry: { picks_attributes: change_picks_to_losers(entry) } },
+                                 headers: referer
         expect(response).to redirect_to(pool_path(pool))
         follow_redirect!(headers: referer)
         expect(response).to have_http_status(:ok)

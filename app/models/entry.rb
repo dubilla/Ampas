@@ -5,7 +5,9 @@ class Entry < ApplicationRecord
   # automatic inverse detection, which leaves `pick.entry` nil while saving
   # nested attributes. Harmless until Rails 5 made `belongs_to` required.
   has_many :picks, -> { order(:created_at) }, dependent: :delete_all, inverse_of: :entry
-  accepts_nested_attributes_for :picks, reject_if: ->(attributes) { attributes['id'].blank? && attributes['category_id'].blank? }
+  accepts_nested_attributes_for :picks, reject_if: lambda { |attributes|
+    attributes['id'].blank? && attributes['category_id'].blank?
+  }
   validates_associated :picks
   validate :one_pick_per_category
   validate :pick_for_every_category, on: :create
@@ -32,16 +34,17 @@ class Entry < ApplicationRecord
 
   def one_pick_per_category
     category_ids = picks.reject(&:marked_for_destruction?).map(&:category_id)
-    if category_ids.uniq.size < category_ids.size
-      errors.add(:picks, 'can only include one pick per category')
-    end
+    return unless category_ids.uniq.size < category_ids.size
+
+    errors.add(:picks, 'can only include one pick per category')
   end
 
   def pick_for_every_category
     return unless pool
+
     picked = picks.reject(&:marked_for_destruction?).map(&:category_id)
-    if (pool.categories.ids - picked).any?
-      errors.add(:base, 'Pick a nominee in every category')
-    end
+    return unless (pool.categories.ids - picked).any?
+
+    errors.add(:base, 'Pick a nominee in every category')
   end
 end

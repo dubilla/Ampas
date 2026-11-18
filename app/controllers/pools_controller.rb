@@ -6,6 +6,7 @@ class PoolsController < ApplicationController
       redirect_to root_path
     end
   end
+
   def show
     @pool = Pool.find(params[:id])
     @entries = @pool.entries.includes(:user, picks: :nominee)

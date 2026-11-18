@@ -29,7 +29,7 @@ Rails.application.configure do
 
   # This block is called only when running console
   console do
-    require "pry"
+    require 'pry'
     config.console = Pry
   end
 end

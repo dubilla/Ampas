@@ -6,8 +6,8 @@ RSpec.describe EntryPolicy do
   let(:ceremony) { create(:award_ceremony, locks_at: Time.current + 1.hour) }
   let(:entry) { create(:entry, pool: create(:pool, award_ceremony: ceremony), user: owner) }
 
-  def after_lock
-    Timecop.travel(ceremony.locks_at + 1.minute) { yield }
+  def after_lock(&)
+    Timecop.travel(ceremony.locks_at + 1.minute, &)
   end
 
   describe '#show?' do
