@@ -1,3 +1,5 @@
+abort 'Seeds are for development only' if Rails.env.production?
+
 # Seed data for local development.
 #
 # Builds one award ceremony with categories and nominees, a pool on that
