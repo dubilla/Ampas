@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'home#index'
 
+  get 'up' => 'rails/health#show', as: :rails_health_check
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
