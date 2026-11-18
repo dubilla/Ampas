@@ -1,5 +1,8 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   TargetRubyVersion: 3.4
   Exclude:
     - bin/**/*
@@ -14,3 +17,10 @@ Style/Documentation:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+Metrics/BlockLength:
+  inherit_mode:
+    merge:
+      - Exclude
+  Exclude:
+    - spec/**/*
