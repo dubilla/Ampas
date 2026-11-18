@@ -1,3 +1,5 @@
+require_relative '../../lib/fly_client_ip'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -29,6 +31,7 @@ Rails.application.configure do
 
   config.assume_ssl = true
   config.force_ssl = true
+  config.middleware.insert_before ActionDispatch::RemoteIp, FlyClientIp
 
   config.log_tags = [:request_id]
   config.logger = ActiveSupport::TaggedLogging.logger($stdout)
