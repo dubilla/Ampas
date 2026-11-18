@@ -23,4 +23,5 @@ Metrics/BlockLength:
     merge:
       - Exclude
   Exclude:
+    - config/environments/**/*
     - spec/**/*
