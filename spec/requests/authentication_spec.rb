@@ -95,4 +95,17 @@ RSpec.describe 'Authentication', type: :request do
       expect(response.body).to include('>Log in</a>')
     end
   end
+
+  describe 'password reset' do
+    it 'emails a reset link' do
+      user = create(:user)
+
+      expect do
+        post '/users/password', params: { user: { email: user.email } }
+      end.to change(ActionMailer::Base.deliveries, :count).by(1)
+
+      expect(ActionMailer::Base.deliveries.last.body.encoded)
+        .to include('http://www.example.com/users/password/edit?reset_password_token=')
+    end
+  end
 end
