@@ -1,0 +1,28 @@
+app = 'ampas'
+primary_region = 'iad'
+console_command = '/rails/bin/rails console'
+
+[build]
+
+[deploy]
+  release_command = "bash -c 'DATABASE_URL=$DIRECT_DATABASE_URL ./bin/rails db:migrate'"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  [[http_service.checks]]
+    grace_period = '10s'
+    interval = '30s'
+    method = 'GET'
+    path = '/up'
+    timeout = '5s'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
