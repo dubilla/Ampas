@@ -6,6 +6,22 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    name: RuboCop
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.12'
+          bundler: '2.6.9'
+          bundler-cache: true
+
+      - name: Run RuboCop
+        run: bundle exec rubocop
+
   specs:
     name: RSpec
     runs-on: ubuntu-latest
