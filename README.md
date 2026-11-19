@@ -41,7 +41,7 @@ A Ruby on Rails web application for running award-prediction pools (e.g., Oscars
 
 ## Requirements
 
-- Ruby 3.4.12, via rbenv (`.ruby-version`)
+- Ruby 3.4.13, via rbenv (`.ruby-version`)
 - PostgreSQL
 - Bundler 2.x
 - Chrome (for the system specs)
